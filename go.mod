@@ -1,4 +1,4 @@
-module github.com/carped99/gosdk/outbox
+module github.com/carped99/gosdk
 
 go 1.23
 
