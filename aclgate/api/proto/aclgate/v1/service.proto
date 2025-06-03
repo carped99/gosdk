@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package aclgate.v1;
+
+option go_package = "aclgate/api/aclgate/v1;aclgatev1";
+option java_package = "carped99.aclgate.v1";
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "aclgate/v1/schema.proto";
+import "google/protobuf/timestamp.proto";
+
+// 권한 확인 서비스
+service AclService {
+  // 단건 권한 확인
+  rpc Check(CheckRequest) returns (CheckResponse) {
+    option (google.api.http) = {
+      post: "/acls/v1/check"
+      body: "*"
+    };
+  }
+
+  // 다건 권한 확인
+  rpc BatchCheck(BatchCheckRequest) returns (BatchCheckResponse) {
+    option (google.api.http) = {
+      post: "/acls/v1/batch"
+      body: "*"
+    };
+  }
+
+  rpc Grant(WriteRequest) returns (WriteResponse) {
+    option (google.api.http) = {
+      post: "/acls/v1/grant"
+      body: "*"
+    };
+  }
+
+  rpc Revoke(RevokeRequest) returns (RevokeResponse) {
+    option (google.api.http) = {
+      post: "/acls/v1/revoke"
+      body: "*"
+    };
+  }
+
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/acls/v1/create"
+      body: "*"
+    };
+  }
+
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      post: "/acls/v1/delete"
+      body: "*"
+    };
+  }
+
+  // StreamCheck streams permission check in real-time
+  rpc StreamCheck(stream StreamCheckRequest) returns (stream StreamCheckResponse);
+}
+
+// 단건 요청
+message CheckRequest {
+  Tuple tuple = 1 [(buf.validate.field).required = true];
+}
+
+// 단건 응답
+message CheckResponse {
+  bool allowed = 1;
+  string reason = 2;
+}
+
+// 다건 요청
+message BatchCheckRequest {
+  repeated CheckRequest items = 1 [(buf.validate.field).repeated.min_items = 1];
+}
+
+// 다건 응답
+message BatchCheckResponse {
+  repeated BatchCheckResult results = 1;
+}
+
+// 다건 응답 결과 항목
+message BatchCheckResult {
+  CheckRequest request = 1;
+  bool allowed = 2;
+}
+
+message GrantRequest {
+  Tuple tuple = 1 [(buf.validate.field).required = true];
+}
+
+message GrantResponse {
+  bool success = 1;
+}
+
+message RevokeRequest {
+  Tuple tuple = 1 [(buf.validate.field).required = true];
+}
+
+message RevokeResponse {
+  bool success = 1;
+}
+
+message WriteRequest {
+  repeated Tuple grants = 1;
+  repeated Tuple revokes = 2;
+}
+
+message WriteResponse {
+  bool success = 1;
+}
+
+message CreateRequest {
+  Resource resource = 1 [(buf.validate.field).required = true];
+  Subject subject = 2 [(buf.validate.field).required = true];
+}
+
+message CreateResponse {
+  bool success = 1;
+}
+
+message DeleteRequest {
+  Resource resource = 1;
+  Subject subject = 2;
+
+  // Validate that at least one of resource or subject is provided
+  option (buf.validate.message).cel = {
+    expression: "has(resource) || has(subject)",
+    message: "at least one of resource or subject must be provided"
+  };
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+// CheckPermissionRequest represents a permission check request
+message StreamCheckRequest {
+  Tuple tuple = 1 [(buf.validate.field).required = true];
+  map<string, string> context = 2;
+}
+
+// PermissionChange represents a single permission change event
+message StreamCheckResponse {
+  bool allowed = 1;
+  string reason = 2;
+  string error = 3;
+}

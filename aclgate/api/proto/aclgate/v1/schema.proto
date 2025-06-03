@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package aclgate.v1;
+
+option go_package = "aclgate/api/aclgate/v1;aclgatev1";
+option java_package = "carped99.aclgate.v1";
+
+import "buf/validate/validate.proto";
+
+message Subject {
+  string type = 1 [(buf.validate.field).string = {
+    pattern : "^[^\\s]{1,256}$",
+  }];
+
+  string id = 2 [(buf.validate.field).string = {
+    pattern : "^[^\\s]{1,256}$",
+  }];
+}
+
+message Resource {
+  string type = 1 [(buf.validate.field).string = {
+    pattern : "^[^\\s]{1,256}$",
+  }];
+
+  string id = 2 [(buf.validate.field).string = {
+    pattern : "^[^\\s]{1,256}$",
+  }];
+}
+
+message Relation {
+  string name = 1 [(buf.validate.field).string = {
+    pattern : "^[^:#@\\s]{1,50}$",
+  }];
+}
+
+message Tuple {
+  Subject subject = 1 [(buf.validate.field).required = true];
+  Resource resource = 2 [(buf.validate.field).required = true];
+  Relation relation = 3 [(buf.validate.field).required = true];
+}
+
