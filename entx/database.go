@@ -1,4 +1,4 @@
-package bootstrap
+package entx
 
 type DatabaseConfig struct {
 	Driver          string `json:"driver" mapstructure:"driver"`

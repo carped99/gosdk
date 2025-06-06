@@ -1,0 +1,28 @@
+{{ define "client/additional/extension" }}
+{{ range $n := $.Nodes }}
+{{ $client := $n.ClientName }}
+{{ with $n.HasOneFieldID }}
+    // FindById returns the {{ $n.Name }} for the given ID.
+    // Returns nil if not found, or an error if failed.
+    func (c *{{ $client }}) FindById(ctx context.Context, id {{ $n.ID.Type }}) (*{{ $n.Name }}, error) {
+    	obj, err := c.Get(ctx, id)
+    	if IsNotFound(err) {
+    		return nil, nil
+    	}
+    	return obj, err
+    }
+
+    func (c *{{ $client }}) DeleteById(ctx context.Context, id {{ $n.ID.Type }}) error {
+        err := c.DeleteOneID(id).Exec(ctx)
+        if err == nil {
+            return nil
+        }
+        if IsNotFound(err) {
+            return fmt.Errorf("{{ $n.Name }} not found by ID %s", id)
+        }
+        return err
+    }
+{{ end }}
+
+{{ end }}
+{{ end }}

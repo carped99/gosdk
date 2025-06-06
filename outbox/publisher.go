@@ -3,56 +3,63 @@ package outbox
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
-	"github.com/carped99/gosdk/events"
+	"time"
 )
 
-type Executor interface {
-	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
-}
-
-type defaultPublisher struct {
+type Publisher struct {
 	executor Executor
+	config   PublisherConfig
 }
 
-func (p *defaultPublisher) Publish(ctx context.Context, messages *events.Message) error {
-	payload, err := json.Marshal(messages.Payload)
-	if err != nil {
-		return fmt.Errorf("failed to marshal message payload: %w", err)
+type PublisherConfig struct {
+	BatchSize  int
+	MaxRetries int
+}
+
+type Executor interface {
+	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+}
+
+func NewPublisher(executor Executor, config PublisherConfig) *Publisher {
+	return &Publisher{
+		executor: executor,
+		config:   config,
 	}
+}
 
-	metadata, err := json.Marshal(messages.Metadata)
-	if err != nil {
-		return fmt.Errorf("failed to marshal message metadata: %w", err)
+func (p *Publisher) Publish(ctx context.Context, messages ...Message) error {
+	if len(messages) == 0 {
+		return nil
 	}
+	return p.publishBatch(ctx, messages)
+}
 
-	query := `
-        INSERT INTO outbox_message (
-            uuid, event_topic, event_domain, event_type, object_type, producer, correlation_id, payload, metadata, created_at
-        ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-        )
-    `
+func (p *Publisher) publishBatch(ctx context.Context, messages []Message) error {
+	for _, msg := range messages {
+		if err := p.publishWithRetry(ctx, msg); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
-	_, err = p.executor.ExecContext(ctx, query,
-		messages.UUID,
-		messages.EventTopic,
-		messages.EventDomain,
-		messages.EventType,
-		messages.ObjectType,
-		messages.Producer,
-		messages.CorrelationID,
-		string(payload),
-		string(metadata),
-		messages.CreatedAt,
-	)
-
+func (p *Publisher) publishWithRetry(ctx context.Context, msg Message) error {
+	var err error
+	for retry := 0; retry <= p.config.MaxRetries; retry++ {
+		if err = p.executePublish(ctx, msg); err == nil {
+			return nil
+		}
+		if retry < p.config.MaxRetries {
+			time.Sleep(time.Second * time.Duration(retry+1))
+		}
+	}
 	return err
 }
 
-func NewPublisher(executor Executor) events.Publisher {
-	return &defaultPublisher{
-		executor: executor,
-	}
+func (p *Publisher) executePublish(ctx context.Context, msg Message) error {
+	_, err := p.executor.ExecContext(ctx,
+		"INSERT INTO outbox (uuid, event_topic, event_domain, event_type, object_type, producer, correlation_id, payload, metadata, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+		msg.GetEventID(), msg.GetEventTopic(), msg.GetEventDomain(), msg.GetEventType(), msg.GetObjectType(),
+		msg.GetProducer(), msg.GetCorrelationID(), msg.GetPayload(), msg.GetMetadata(), msg.GetCreatedAt())
+	return err
 }

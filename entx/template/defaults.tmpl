@@ -1,0 +1,35 @@
+{{ define "entx_defaults" }}
+
+{{/* gotype: entgo.io/ent/entc/gen.Graph */}}
+
+{{ $pkg := base $.Config.Package }}
+{{ template "header" $ }}
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
+
+{{ range $n := $.Nodes }}
+{{ $client := $n.ClientName }}
+{{ with $n.HasOneFieldID }}
+    {{ $receiver := $n.Receiver }}
+
+    // GetIDString returns the string representation of the ID.
+    func ({{ $receiver }} *{{ $n.Name }}) GetIdValue() string {
+        {{- $idType := $n.ID.Type.String }}
+        {{- if eq $idType "uuid.UUID" }}
+        return {{ $receiver }}.ID.String()
+        {{- else if eq $idType "string" }}
+        return {{ $receiver }}.ID
+        {{- else if or (eq $idType "int") (eq $idType "int64") (eq $idType "uint64") (eq $idType "int32") (eq $idType "uint32") }}
+        return strconv.FormatInt(int64({{ $receiver }}.ID), 10)
+        {{- else }}
+        return fmt.Sprintf("%v", {{ $receiver }}.ID)
+        {{- end }}
+    }
+{{ end }}
+{{ end }}
+
+{{ end }}

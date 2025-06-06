@@ -1,0 +1,19 @@
+{{ define "entx_get_model_name" }}
+
+{{/* gotype: entgo.io/ent/entc/gen.Graph */}}
+
+{{ $pkg := base $.Config.Package }}
+{{ template "header" $ }}
+
+import (
+	"context"
+)
+
+{{ range $n := $.Nodes }}
+    {{ $receiver := $n.Receiver }}
+    func (c *{{ $n.Name }}) GetModelName() string {
+        return "{{ snake $n.Name }}"
+    }
+{{ end }}
+
+{{ end }}

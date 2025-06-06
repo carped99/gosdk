@@ -1,0 +1,44 @@
+{{ define "entx_with_tx" }}
+
+{{/* gotype: entgo.io/ent/entc/gen.Graph */}}
+
+{{ $pkg := base $.Config.Package }}
+{{ template "header" $ }}
+
+import (
+	"context"
+	"fmt"
+)
+
+
+// WithTxContext executes a transactional function 'fn' with automatic commit/rollback handling.
+func WithTxContext[T any](ctx context.Context, client *Client, fn func(ctx context.Context) (T, error)) (result T, err error) {
+    tx, err := client.Tx(ctx)
+	if err != nil {
+		return result, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+
+	defer func() {
+		switch r := recover(); {
+		case r != nil:
+			_ = tx.Rollback()
+			panic(r) // rethrow
+		case err != nil:
+			_ = tx.Rollback()
+		default:
+			err = tx.Commit()
+		}
+	}()
+
+	return fn(NewTxContext(ctx, tx))
+}
+
+func WithTxVoid(ctx context.Context, client *Client, fn func(ctx context.Context) error) error {
+	_, err := WithTxContext[struct{}](ctx, client, func(ctx context.Context) (struct{}, error) {
+		return struct{}{}, fn(ctx)
+	})
+	return err
+}
+
+
+{{ end }}
