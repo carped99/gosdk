@@ -1,6 +1,7 @@
 package events
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"time"
 )
@@ -16,6 +17,16 @@ func NewMessageBuilder() *MessageBuilder {
 			CreatedAt: time.Now().UTC(),
 		},
 	}
+}
+
+func (b *MessageBuilder) SetUUID(id uuid.UUID) *MessageBuilder {
+	b.message.UUID = id
+	return b
+}
+
+func (b *MessageBuilder) SetCreatedAt(value time.Time) *MessageBuilder {
+	b.message.CreatedAt = value
+	return b
 }
 
 func (b *MessageBuilder) SetEventTopic(eventTopic string) *MessageBuilder {
@@ -48,12 +59,12 @@ func (b *MessageBuilder) SetCorrelationID(correlationID string) *MessageBuilder 
 	return b
 }
 
-func (b *MessageBuilder) SetPayload(payload any) *MessageBuilder {
+func (b *MessageBuilder) SetPayload(payload json.RawMessage) *MessageBuilder {
 	b.message.Payload = payload
 	return b
 }
 
-func (b *MessageBuilder) SetMetadata(metadata any) *MessageBuilder {
+func (b *MessageBuilder) SetMetadata(metadata json.RawMessage) *MessageBuilder {
 	b.message.Metadata = metadata
 	return b
 }
