@@ -11,7 +11,9 @@ import (
 // It provides a fluent interface for setting message properties and ensures
 // all required fields are properly set before creating the message.
 type MessageBuilder struct {
-	message *Message
+	message  *Message
+	payload  any
+	metadata any
 }
 
 // NewMessageBuilder creates a new messageBuilder instance.
@@ -79,15 +81,41 @@ func (b *MessageBuilder) SetPayload(payload json.RawMessage) *MessageBuilder {
 	return b
 }
 
+func (b *MessageBuilder) WithPayload(payload any) *MessageBuilder {
+	b.payload = payload
+	return b
+}
+
 // SetMetadata sets additional information about the event.
 func (b *MessageBuilder) SetMetadata(metadata json.RawMessage) *MessageBuilder {
 	b.message.Metadata = metadata
 	return b
 }
 
+func (b *MessageBuilder) WithMetadata(metadata any) *MessageBuilder {
+	b.metadata = metadata
+	return b
+}
+
 // Build validates all required fields and creates a new Message.
 // Returns an error if any required field is missing or invalid.
 func (b *MessageBuilder) Build() (*Message, error) {
+	if b.payload != nil {
+		payload, err := json.Marshal(b.payload)
+		if err != nil {
+			return nil, err
+		}
+		b.message.Payload = payload
+	}
+
+	if b.metadata != nil {
+		metadata, err := json.Marshal(b.metadata)
+		if err != nil {
+			return nil, err
+		}
+		b.message.Metadata = metadata
+	}
+
 	if err := b.message.validate(); err != nil {
 		return nil, err
 	}

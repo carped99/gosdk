@@ -1,0 +1,9 @@
+version: '3'
+
+tasks:
+  gen:
+    desc: Generate the module
+    vars:
+      BUF_TOKEN: "e705b2cb416e2ad49681af8f42d54bfc9219ec8fa586fc38eecf82758f724c2c"
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}:/workspace" -w /workspace -e BUF_TOKEN={{.BUF_TOKEN}} bufbuild/buf generate

@@ -3187,7 +3187,7 @@ const file_openfga_v1_openfga_service_proto_rawDesc = "" +
 	"Assertions\x12:\n" +
 	"\n" +
 	"assertions\x18\x01 \x03(\v2\x15.openfga.v1.AssertionB\x03\xe0A\x02R\n" +
-	"assertions2\xff\xe8\x01\n" +
+	"assertions2\xe7\xeb\x01\n" +
 	"\x0eOpenFGAService\x12\xd0\x1d\n" +
 	"\x04Read\x12\x17.openfga.v1.ReadRequest\x1a\x18.openfga.v1.ReadResponse\"\x94\x1d\x92A\xee\x1c\n" +
 	"\x13Relationship Tuples\x12WGet tuples from the store that matches a query, without following userset rewrite rules\x1a\xf7\x1bThe Read API will return the tuples for a certain store that match a query filter specified in the body of the request. \n" +
@@ -3447,12 +3447,14 @@ const file_openfga_v1_openfga_service_proto_rawDesc = "" +
 	"  \"consistency\": \"HIGHER_CONSISTENCY\"\n" +
 	"}\n" +
 	"```\n" +
-	"*\x05Check\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/stores/{store_id}/check\x12\xa3\x10\n" +
+	"*\x05Check\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/stores/{store_id}/check\x12\x8b\x13\n" +
 	"\n" +
-	"BatchCheck\x12\x1d.openfga.v1.BatchCheckRequest\x1a\x1e.openfga.v1.BatchCheckResponse\"\xd5\x0f\x92A\xa8\x0f\n" +
-	"\x14Relationship Queries\x125Send a list of `check` operations in a single request\x1a\xcc\x0eThe `BatchCheck` API functions nearly identically to `Check`, but instead of checking a single user-object relationship BatchCheck accepts a list of relationships to check and returns a map containing `BatchCheckItem` response for each check it received.\n" +
+	"BatchCheck\x12\x1d.openfga.v1.BatchCheckRequest\x1a\x1e.openfga.v1.BatchCheckResponse\"\xbd\x12\x92A\x90\x12\n" +
+	"\x14Relationship Queries\x125Send a list of `check` operations in a single request\x1a\xb4\x11The `BatchCheck` API functions nearly identically to `Check`, but instead of checking a single user-object relationship BatchCheck accepts a list of relationships to check and returns a map containing `BatchCheckItem` response for each check it received.\n" +
 	"\n" +
-	"An associated `correlation_id` is required for each check in the batch. This ID is used to correlate a check to the appropriate response. It is a string consisting of only alphanumeric characters or hyphens with a maximum length of 36 characters. This `correlation_id` is used to map the result of each check to the item which was checked, so it must be unique for each item in the batch. We recommend using a EventID or ULID as the `correlation_id`, but you can use whatever unique identifier you need as long  as it matches this regex pattern: `^[\\w\\d-]{1,36}$`\n" +
+	"An associated `correlation_id` is required for each check in the batch. This ID is used to correlate a check to the appropriate response. It is a string consisting of only alphanumeric characters or hyphens with a maximum length of 36 characters. This `correlation_id` is used to map the result of each check to the item which was checked, so it must be unique for each item in the batch. We recommend using a UUID or ULID as the `correlation_id`, but you can use whatever unique identifier you need as long  as it matches this regex pattern: `^[\\w\\d-]{1,36}$`\n" +
+	"\n" +
+	"NOTE: The maximum number of checks that can be passed in the `BatchCheck` API is configurable via the [OPENFGA_MAX_CHECKS_PER_BATCH_CHECK](https://openfga.dev/docs/getting-started/setup-openfga/configuration#OPENFGA_MAX_CHECKS_PER_BATCH_CHECK) environment variable. If `BatchCheck` is called using the SDK, the SDK can split the batch check requests for you.\n" +
 	"\n" +
 	"For more details on how `Check` functions, see the docs for `/check`.\n" +
 	"\n" +
