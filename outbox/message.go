@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/google/uuid"
 	"go.uber.org/multierr"
 )
 
 // Message represents an event message in the system.
 // It contains all necessary information about an event including its metadata and payload.
 type Message struct {
-	EventID       uuid.UUID       `json:"event_id"`                 // Unique identifier for the message
+	EventID       string          `json:"event_id"`                 // Unique identifier for the message
 	EventTopic    string          `json:"event_topic"`              // Topic where the event will be published
 	EventDomain   string          `json:"event_domain"`             // Domain context of the event
 	EventType     string          `json:"event_type"`               // Type of the event (e.g., created, updated, deleted)
@@ -26,6 +25,10 @@ type Message struct {
 // validate checks if all required fields of the Message are properly set.
 func (m *Message) validate() error {
 	var err error
+
+	if m.EventID == "" {
+		err = multierr.Append(err, ErrInvalidEventID)
+	}
 
 	if m.EventTopic == "" {
 		err = multierr.Append(err, ErrInvalidEventTopic)
@@ -48,4 +51,18 @@ func (m *Message) validate() error {
 	}
 
 	return err
+}
+
+// UnmarshalMessage unmarshal a JSON byte slice into a Message struct.
+func UnmarshalMessage(data []byte) (*Message, error) {
+	var msg Message
+	if err := json.Unmarshal(data, &msg); err != nil {
+		return nil, err
+	}
+
+	if err := msg.validate(); err != nil {
+		return nil, err
+	}
+
+	return &msg, nil
 }

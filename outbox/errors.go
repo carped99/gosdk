@@ -6,13 +6,15 @@ import (
 )
 
 var (
+	ErrInvalidEventID = errors.New("event ID cannot be empty")
+
 	// ErrInvalidEventTopic is returned when the event topic is empty.
 	// The topic is required to determine where the event should be published.
 	ErrInvalidEventTopic = errors.New("event topic cannot be empty")
 
 	// ErrInvalidEventDomain is returned when the event domain is not configured.
 	// The domain provides context about which part of the system the event belongs to.
-	ErrInvalidEventDomain = errors.New("events domain not configured")
+	ErrInvalidEventDomain = errors.New("event domain not configured")
 
 	// ErrInvalidEventType is returned when the event type is empty.
 	// The event type describes what kind of event occurred (e.g., created, updated, deleted).

@@ -3,9 +3,7 @@ module github.com/carped99/gosdk/outbox
 go 1.23.0
 
 require (
-	entgo.io/ent v0.14.4
 	github.com/google/uuid v1.6.0
-	github.com/huandu/xstrings v1.5.0
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/multierr v1.11.0
 )
