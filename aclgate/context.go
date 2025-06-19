@@ -14,14 +14,6 @@ const (
 	aclServiceKey contextKey = "acl_service"
 )
 
-// AclService defines the interface for ACL operations
-type AclService interface {
-	// Check verifies if the given user has the required permission
-	Check(ctx context.Context, resourceType, resourceId, subjectType, subjectId, relation string) (bool, error)
-	// GetUserPermissions returns all permissions for a given user
-	//GetUserPermissions(ctx context.Context, userID interface{}) ([]string, error)
-}
-
 // WithContext creates a middleware that injects AclService into the request context
 func WithContext(service AclService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

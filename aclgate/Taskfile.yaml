@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  buf:gen:
+    desc: Generate the module
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -e BUF_TOKEN=e705b2cb416e2ad49681af8f42d54bfc9219ec8fa586fc38eecf82758f724c2c bufbuild/buf generate
+  buf:build:
+    desc: Test the module by building it
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace bufbuild/buf build
+  buf:push:
+    desc: Push the module to the BSR
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -e BUF_TOKEN=e705b2cb416e2ad49681af8f42d54bfc9219ec8fa586fc38eecf82758f724c2c bufbuild/buf push
+  buf:sh:
+    desc: lint, dep update 등의 작업을 위해 쉘을 실행
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -it --entrypoint=sh bufbuild/buf
+

@@ -11,7 +11,7 @@ import "aclgate/v1/schema.proto";
 import "google/protobuf/timestamp.proto";
 
 // 권한 확인 서비스
-service AclService {
+service AclGateService {
   // 단건 권한 확인
   rpc Check(CheckRequest) returns (CheckResponse) {
     option (google.api.http) = {
@@ -28,30 +28,9 @@ service AclService {
     };
   }
 
-  rpc Grant(WriteRequest) returns (WriteResponse) {
+  rpc Mutate(MutateRequest) returns (MutateResponse) {
     option (google.api.http) = {
-      post: "/acls/v1/grant"
-      body: "*"
-    };
-  }
-
-  rpc Revoke(RevokeRequest) returns (RevokeResponse) {
-    option (google.api.http) = {
-      post: "/acls/v1/revoke"
-      body: "*"
-    };
-  }
-
-  rpc Create(CreateRequest) returns (CreateResponse) {
-    option (google.api.http) = {
-      post: "/acls/v1/create"
-      body: "*"
-    };
-  }
-
-  rpc Delete(DeleteRequest) returns (DeleteResponse) {
-    option (google.api.http) = {
-      post: "/acls/v1/delete"
+      post: "/acls/v1/mutate"
       body: "*"
     };
   }
@@ -87,52 +66,12 @@ message BatchCheckResult {
   bool allowed = 2;
 }
 
-message GrantRequest {
-  Tuple tuple = 1 [(buf.validate.field).required = true];
+message MutateRequest {
+  repeated Tuple writes = 1;
+  repeated Tuple deletes = 2;
 }
 
-message GrantResponse {
-  bool success = 1;
-}
-
-message RevokeRequest {
-  Tuple tuple = 1 [(buf.validate.field).required = true];
-}
-
-message RevokeResponse {
-  bool success = 1;
-}
-
-message WriteRequest {
-  repeated Tuple grants = 1;
-  repeated Tuple revokes = 2;
-}
-
-message WriteResponse {
-  bool success = 1;
-}
-
-message CreateRequest {
-  Resource resource = 1 [(buf.validate.field).required = true];
-  Subject subject = 2 [(buf.validate.field).required = true];
-}
-
-message CreateResponse {
-  bool success = 1;
-}
-
-message DeleteRequest {
-  Resource resource = 1;
-  Subject subject = 2;
-
-  // Validate that at least one of resource or subject is provided
-  option (buf.validate.message).cel = {
-    expression: "has(resource) || has(subject)",
-    message: "at least one of resource or subject must be provided"
-  };
-}
-
-message DeleteResponse {
+message MutateResponse {
   bool success = 1;
 }
 
