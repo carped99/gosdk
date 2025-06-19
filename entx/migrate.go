@@ -21,6 +21,14 @@ func Migrate(ctx context.Context, executor Executor, fsys fs.FS, dir string) err
 		return fmt.Errorf("failed to read directory (%s): %w", dir, err)
 	}
 
+	// SQL 파일만 필터링
+	var sqlFiles []fs.DirEntry
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(strings.ToLower(entry.Name()), ".sql") {
+			sqlFiles = append(sqlFiles, entry)
+		}
+	}
+
 	// 파일 이름으로 정렬
 	slices.SortFunc(entries, func(a, b fs.DirEntry) int {
 		return strings.Compare(a.Name(), b.Name())
