@@ -19,116 +19,68 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AclService_Check_FullMethodName       = "/aclgate.v1.AclService/Check"
-	AclService_BatchCheck_FullMethodName  = "/aclgate.v1.AclService/BatchCheck"
-	AclService_Grant_FullMethodName       = "/aclgate.v1.AclService/Grant"
-	AclService_Revoke_FullMethodName      = "/aclgate.v1.AclService/Revoke"
-	AclService_Create_FullMethodName      = "/aclgate.v1.AclService/Create"
-	AclService_Write_FullMethodName       = "/aclgate.v1.AclService/Write"
-	AclService_Delete_FullMethodName      = "/aclgate.v1.AclService/Delete"
-	AclService_StreamCheck_FullMethodName = "/aclgate.v1.AclService/StreamCheck"
+	AclGateService_Check_FullMethodName       = "/aclgate.v1.AclGateService/Check"
+	AclGateService_BatchCheck_FullMethodName  = "/aclgate.v1.AclGateService/BatchCheck"
+	AclGateService_Mutate_FullMethodName      = "/aclgate.v1.AclGateService/Mutate"
+	AclGateService_StreamCheck_FullMethodName = "/aclgate.v1.AclGateService/StreamCheck"
 )
 
-// AclServiceClient is the client API for AclService service.
+// AclGateServiceClient is the client API for AclGateService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // 권한 확인 서비스
-type AclServiceClient interface {
+type AclGateServiceClient interface {
 	// 단건 권한 확인
 	Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
 	// 다건 권한 확인
 	BatchCheck(ctx context.Context, in *BatchCheckRequest, opts ...grpc.CallOption) (*BatchCheckResponse, error)
-	Grant(ctx context.Context, in *GrantRequest, opts ...grpc.CallOption) (*GrantResponse, error)
-	Revoke(ctx context.Context, in *RevokeRequest, opts ...grpc.CallOption) (*RevokeResponse, error)
-	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error)
-	Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteResponse, error)
-	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
+	Mutate(ctx context.Context, in *MutateRequest, opts ...grpc.CallOption) (*MutateResponse, error)
 	// StreamCheck streams permission check in real-time
 	StreamCheck(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse], error)
 }
 
-type aclServiceClient struct {
+type aclGateServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAclServiceClient(cc grpc.ClientConnInterface) AclServiceClient {
-	return &aclServiceClient{cc}
+func NewAclGateServiceClient(cc grpc.ClientConnInterface) AclGateServiceClient {
+	return &aclGateServiceClient{cc}
 }
 
-func (c *aclServiceClient) Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
+func (c *aclGateServiceClient) Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CheckResponse)
-	err := c.cc.Invoke(ctx, AclService_Check_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AclGateService_Check_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aclServiceClient) BatchCheck(ctx context.Context, in *BatchCheckRequest, opts ...grpc.CallOption) (*BatchCheckResponse, error) {
+func (c *aclGateServiceClient) BatchCheck(ctx context.Context, in *BatchCheckRequest, opts ...grpc.CallOption) (*BatchCheckResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BatchCheckResponse)
-	err := c.cc.Invoke(ctx, AclService_BatchCheck_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AclGateService_BatchCheck_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aclServiceClient) Grant(ctx context.Context, in *GrantRequest, opts ...grpc.CallOption) (*GrantResponse, error) {
+func (c *aclGateServiceClient) Mutate(ctx context.Context, in *MutateRequest, opts ...grpc.CallOption) (*MutateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GrantResponse)
-	err := c.cc.Invoke(ctx, AclService_Grant_FullMethodName, in, out, cOpts...)
+	out := new(MutateResponse)
+	err := c.cc.Invoke(ctx, AclGateService_Mutate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aclServiceClient) Revoke(ctx context.Context, in *RevokeRequest, opts ...grpc.CallOption) (*RevokeResponse, error) {
+func (c *aclGateServiceClient) StreamCheck(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RevokeResponse)
-	err := c.cc.Invoke(ctx, AclService_Revoke_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aclServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CreateResponse)
-	err := c.cc.Invoke(ctx, AclService_Create_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aclServiceClient) Write(ctx context.Context, in *WriteRequest, opts ...grpc.CallOption) (*WriteResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WriteResponse)
-	err := c.cc.Invoke(ctx, AclService_Write_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aclServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteResponse)
-	err := c.cc.Invoke(ctx, AclService_Delete_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aclServiceClient) StreamCheck(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &AclService_ServiceDesc.Streams[0], AclService_StreamCheck_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &AclGateService_ServiceDesc.Streams[0], AclGateService_StreamCheck_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -137,253 +89,149 @@ func (c *aclServiceClient) StreamCheck(ctx context.Context, opts ...grpc.CallOpt
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AclService_StreamCheckClient = grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse]
+type AclGateService_StreamCheckClient = grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse]
 
-// AclServiceServer is the server API for AclService service.
-// All implementations must embed UnimplementedAclServiceServer
+// AclGateServiceServer is the server API for AclGateService service.
+// All implementations must embed UnimplementedAclGateServiceServer
 // for forward compatibility.
 //
 // 권한 확인 서비스
-type AclServiceServer interface {
+type AclGateServiceServer interface {
 	// 단건 권한 확인
 	Check(context.Context, *CheckRequest) (*CheckResponse, error)
 	// 다건 권한 확인
 	BatchCheck(context.Context, *BatchCheckRequest) (*BatchCheckResponse, error)
-	Grant(context.Context, *GrantRequest) (*GrantResponse, error)
-	Revoke(context.Context, *RevokeRequest) (*RevokeResponse, error)
-	Create(context.Context, *CreateRequest) (*CreateResponse, error)
-	Write(context.Context, *WriteRequest) (*WriteResponse, error)
-	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
+	Mutate(context.Context, *MutateRequest) (*MutateResponse, error)
 	// StreamCheck streams permission check in real-time
 	StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error
-	mustEmbedUnimplementedAclServiceServer()
+	mustEmbedUnimplementedAclGateServiceServer()
 }
 
-// UnimplementedAclServiceServer must be embedded to have
+// UnimplementedAclGateServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedAclServiceServer struct{}
+type UnimplementedAclGateServiceServer struct{}
 
-func (UnimplementedAclServiceServer) Check(context.Context, *CheckRequest) (*CheckResponse, error) {
+func (UnimplementedAclGateServiceServer) Check(context.Context, *CheckRequest) (*CheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Check not implemented")
 }
-func (UnimplementedAclServiceServer) BatchCheck(context.Context, *BatchCheckRequest) (*BatchCheckResponse, error) {
+func (UnimplementedAclGateServiceServer) BatchCheck(context.Context, *BatchCheckRequest) (*BatchCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchCheck not implemented")
 }
-func (UnimplementedAclServiceServer) Grant(context.Context, *GrantRequest) (*GrantResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Grant not implemented")
+func (UnimplementedAclGateServiceServer) Mutate(context.Context, *MutateRequest) (*MutateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Mutate not implemented")
 }
-func (UnimplementedAclServiceServer) Revoke(context.Context, *RevokeRequest) (*RevokeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Revoke not implemented")
-}
-func (UnimplementedAclServiceServer) Create(context.Context, *CreateRequest) (*CreateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (UnimplementedAclServiceServer) Write(context.Context, *WriteRequest) (*WriteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Write not implemented")
-}
-func (UnimplementedAclServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
-}
-func (UnimplementedAclServiceServer) StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error {
+func (UnimplementedAclGateServiceServer) StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamCheck not implemented")
 }
-func (UnimplementedAclServiceServer) mustEmbedUnimplementedAclServiceServer() {}
-func (UnimplementedAclServiceServer) testEmbeddedByValue()                    {}
+func (UnimplementedAclGateServiceServer) mustEmbedUnimplementedAclGateServiceServer() {}
+func (UnimplementedAclGateServiceServer) testEmbeddedByValue()                        {}
 
-// UnsafeAclServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AclServiceServer will
+// UnsafeAclGateServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AclGateServiceServer will
 // result in compilation errors.
-type UnsafeAclServiceServer interface {
-	mustEmbedUnimplementedAclServiceServer()
+type UnsafeAclGateServiceServer interface {
+	mustEmbedUnimplementedAclGateServiceServer()
 }
 
-func RegisterAclServiceServer(s grpc.ServiceRegistrar, srv AclServiceServer) {
-	// If the following call pancis, it indicates UnimplementedAclServiceServer was
+func RegisterAclGateServiceServer(s grpc.ServiceRegistrar, srv AclGateServiceServer) {
+	// If the following call pancis, it indicates UnimplementedAclGateServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&AclService_ServiceDesc, srv)
+	s.RegisterService(&AclGateService_ServiceDesc, srv)
 }
 
-func _AclService_Check_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AclGateService_Check_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CheckRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AclServiceServer).Check(ctx, in)
+		return srv.(AclGateServiceServer).Check(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AclService_Check_FullMethodName,
+		FullMethod: AclGateService_Check_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).Check(ctx, req.(*CheckRequest))
+		return srv.(AclGateServiceServer).Check(ctx, req.(*CheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AclService_BatchCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AclGateService_BatchCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BatchCheckRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AclServiceServer).BatchCheck(ctx, in)
+		return srv.(AclGateServiceServer).BatchCheck(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AclService_BatchCheck_FullMethodName,
+		FullMethod: AclGateService_BatchCheck_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).BatchCheck(ctx, req.(*BatchCheckRequest))
+		return srv.(AclGateServiceServer).BatchCheck(ctx, req.(*BatchCheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AclService_Grant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GrantRequest)
+func _AclGateService_Mutate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MutateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AclServiceServer).Grant(ctx, in)
+		return srv.(AclGateServiceServer).Mutate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AclService_Grant_FullMethodName,
+		FullMethod: AclGateService_Mutate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).Grant(ctx, req.(*GrantRequest))
+		return srv.(AclGateServiceServer).Mutate(ctx, req.(*MutateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AclService_Revoke_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RevokeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).Revoke(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_Revoke_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).Revoke(ctx, req.(*RevokeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).Create(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_Create_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).Create(ctx, req.(*CreateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_Write_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WriteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).Write(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_Write_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).Write(ctx, req.(*WriteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).Delete(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_Delete_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).Delete(ctx, req.(*DeleteRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_StreamCheck_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(AclServiceServer).StreamCheck(&grpc.GenericServerStream[StreamCheckRequest, StreamCheckResponse]{ServerStream: stream})
+func _AclGateService_StreamCheck_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AclGateServiceServer).StreamCheck(&grpc.GenericServerStream[StreamCheckRequest, StreamCheckResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AclService_StreamCheckServer = grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]
+type AclGateService_StreamCheckServer = grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]
 
-// AclService_ServiceDesc is the grpc.ServiceDesc for AclService service.
+// AclGateService_ServiceDesc is the grpc.ServiceDesc for AclGateService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AclService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "aclgate.v1.AclService",
-	HandlerType: (*AclServiceServer)(nil),
+var AclGateService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "aclgate.v1.AclGateService",
+	HandlerType: (*AclGateServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Check",
-			Handler:    _AclService_Check_Handler,
+			Handler:    _AclGateService_Check_Handler,
 		},
 		{
 			MethodName: "BatchCheck",
-			Handler:    _AclService_BatchCheck_Handler,
+			Handler:    _AclGateService_BatchCheck_Handler,
 		},
 		{
-			MethodName: "Grant",
-			Handler:    _AclService_Grant_Handler,
-		},
-		{
-			MethodName: "Revoke",
-			Handler:    _AclService_Revoke_Handler,
-		},
-		{
-			MethodName: "Create",
-			Handler:    _AclService_Create_Handler,
-		},
-		{
-			MethodName: "Write",
-			Handler:    _AclService_Write_Handler,
-		},
-		{
-			MethodName: "Delete",
-			Handler:    _AclService_Delete_Handler,
+			MethodName: "Mutate",
+			Handler:    _AclGateService_Mutate_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "StreamCheck",
-			Handler:       _AclService_StreamCheck_Handler,
+			Handler:       _AclGateService_StreamCheck_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

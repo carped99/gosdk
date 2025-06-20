@@ -265,27 +265,28 @@ func (x *BatchCheckResult) GetAllowed() bool {
 	return false
 }
 
-type GrantRequest struct {
+type MutateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tuple         *Tuple                 `protobuf:"bytes,1,opt,name=tuple,proto3" json:"tuple,omitempty"`
+	Writes        []*Tuple               `protobuf:"bytes,1,rep,name=writes,proto3" json:"writes,omitempty"`
+	Deletes       []*Tuple               `protobuf:"bytes,2,rep,name=deletes,proto3" json:"deletes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GrantRequest) Reset() {
-	*x = GrantRequest{}
+func (x *MutateRequest) Reset() {
+	*x = MutateRequest{}
 	mi := &file_aclgate_v1_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GrantRequest) String() string {
+func (x *MutateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GrantRequest) ProtoMessage() {}
+func (*MutateRequest) ProtoMessage() {}
 
-func (x *GrantRequest) ProtoReflect() protoreflect.Message {
+func (x *MutateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_aclgate_v1_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -297,39 +298,46 @@ func (x *GrantRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GrantRequest.ProtoReflect.Descriptor instead.
-func (*GrantRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use MutateRequest.ProtoReflect.Descriptor instead.
+func (*MutateRequest) Descriptor() ([]byte, []int) {
 	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *GrantRequest) GetTuple() *Tuple {
+func (x *MutateRequest) GetWrites() []*Tuple {
 	if x != nil {
-		return x.Tuple
+		return x.Writes
 	}
 	return nil
 }
 
-type GrantResponse struct {
+func (x *MutateRequest) GetDeletes() []*Tuple {
+	if x != nil {
+		return x.Deletes
+	}
+	return nil
+}
+
+type MutateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GrantResponse) Reset() {
-	*x = GrantResponse{}
+func (x *MutateResponse) Reset() {
+	*x = MutateResponse{}
 	mi := &file_aclgate_v1_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GrantResponse) String() string {
+func (x *MutateResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GrantResponse) ProtoMessage() {}
+func (*MutateResponse) ProtoMessage() {}
 
-func (x *GrantResponse) ProtoReflect() protoreflect.Message {
+func (x *MutateResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_aclgate_v1_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -341,388 +349,12 @@ func (x *GrantResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GrantResponse.ProtoReflect.Descriptor instead.
-func (*GrantResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use MutateResponse.ProtoReflect.Descriptor instead.
+func (*MutateResponse) Descriptor() ([]byte, []int) {
 	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GrantResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-type RevokeRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Tuple         *Tuple                 `protobuf:"bytes,1,opt,name=tuple,proto3" json:"tuple,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RevokeRequest) Reset() {
-	*x = RevokeRequest{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RevokeRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RevokeRequest) ProtoMessage() {}
-
-func (x *RevokeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RevokeRequest.ProtoReflect.Descriptor instead.
-func (*RevokeRequest) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *RevokeRequest) GetTuple() *Tuple {
-	if x != nil {
-		return x.Tuple
-	}
-	return nil
-}
-
-type RevokeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RevokeResponse) Reset() {
-	*x = RevokeResponse{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RevokeResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RevokeResponse) ProtoMessage() {}
-
-func (x *RevokeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RevokeResponse.ProtoReflect.Descriptor instead.
-func (*RevokeResponse) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *RevokeResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-type CreateRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
-	Subject       *Subject               `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateRequest) Reset() {
-	*x = CreateRequest{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateRequest) ProtoMessage() {}
-
-func (x *CreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateRequest.ProtoReflect.Descriptor instead.
-func (*CreateRequest) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *CreateRequest) GetResource() *Resource {
-	if x != nil {
-		return x.Resource
-	}
-	return nil
-}
-
-func (x *CreateRequest) GetSubject() *Subject {
-	if x != nil {
-		return x.Subject
-	}
-	return nil
-}
-
-type CreateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateResponse) Reset() {
-	*x = CreateResponse{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateResponse) ProtoMessage() {}
-
-func (x *CreateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateResponse.ProtoReflect.Descriptor instead.
-func (*CreateResponse) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *CreateResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-type WriteRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Grants        []*Tuple               `protobuf:"bytes,1,rep,name=grants,proto3" json:"grants,omitempty"`
-	Revokes       []*Tuple               `protobuf:"bytes,2,rep,name=revokes,proto3" json:"revokes,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WriteRequest) Reset() {
-	*x = WriteRequest{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WriteRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WriteRequest) ProtoMessage() {}
-
-func (x *WriteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WriteRequest.ProtoReflect.Descriptor instead.
-func (*WriteRequest) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *WriteRequest) GetGrants() []*Tuple {
-	if x != nil {
-		return x.Grants
-	}
-	return nil
-}
-
-func (x *WriteRequest) GetRevokes() []*Tuple {
-	if x != nil {
-		return x.Revokes
-	}
-	return nil
-}
-
-type WriteResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WriteResponse) Reset() {
-	*x = WriteResponse{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WriteResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WriteResponse) ProtoMessage() {}
-
-func (x *WriteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WriteResponse.ProtoReflect.Descriptor instead.
-func (*WriteResponse) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *WriteResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-type DeleteRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
-	Subject       *Subject               `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteRequest) Reset() {
-	*x = DeleteRequest{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteRequest) ProtoMessage() {}
-
-func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
-func (*DeleteRequest) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *DeleteRequest) GetResource() *Resource {
-	if x != nil {
-		return x.Resource
-	}
-	return nil
-}
-
-func (x *DeleteRequest) GetSubject() *Subject {
-	if x != nil {
-		return x.Subject
-	}
-	return nil
-}
-
-type DeleteResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteResponse) Reset() {
-	*x = DeleteResponse{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteResponse) ProtoMessage() {}
-
-func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
-func (*DeleteResponse) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *DeleteResponse) GetSuccess() bool {
+func (x *MutateResponse) GetSuccess() bool {
 	if x != nil {
 		return x.Success
 	}
@@ -740,7 +372,7 @@ type StreamCheckRequest struct {
 
 func (x *StreamCheckRequest) Reset() {
 	*x = StreamCheckRequest{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[15]
+	mi := &file_aclgate_v1_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -752,7 +384,7 @@ func (x *StreamCheckRequest) String() string {
 func (*StreamCheckRequest) ProtoMessage() {}
 
 func (x *StreamCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[15]
+	mi := &file_aclgate_v1_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -765,7 +397,7 @@ func (x *StreamCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamCheckRequest.ProtoReflect.Descriptor instead.
 func (*StreamCheckRequest) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{15}
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *StreamCheckRequest) GetTuple() *Tuple {
@@ -794,7 +426,7 @@ type StreamCheckResponse struct {
 
 func (x *StreamCheckResponse) Reset() {
 	*x = StreamCheckResponse{}
-	mi := &file_aclgate_v1_service_proto_msgTypes[16]
+	mi := &file_aclgate_v1_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -806,7 +438,7 @@ func (x *StreamCheckResponse) String() string {
 func (*StreamCheckResponse) ProtoMessage() {}
 
 func (x *StreamCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_aclgate_v1_service_proto_msgTypes[16]
+	mi := &file_aclgate_v1_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -819,7 +451,7 @@ func (x *StreamCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamCheckResponse.ProtoReflect.Descriptor instead.
 func (*StreamCheckResponse) Descriptor() ([]byte, []int) {
-	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{16}
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *StreamCheckResponse) GetAllowed() bool {
@@ -860,29 +492,11 @@ const file_aclgate_v1_service_proto_rawDesc = "" +
 	"\aresults\x18\x01 \x03(\v2\x1c.aclgate.v1.BatchCheckResultR\aresults\"`\n" +
 	"\x10BatchCheckResult\x122\n" +
 	"\arequest\x18\x01 \x01(\v2\x18.aclgate.v1.CheckRequestR\arequest\x12\x18\n" +
-	"\aallowed\x18\x02 \x01(\bR\aallowed\"?\n" +
-	"\fGrantRequest\x12/\n" +
-	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleB\x06\xbaH\x03\xc8\x01\x01R\x05tuple\")\n" +
-	"\rGrantResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"@\n" +
-	"\rRevokeRequest\x12/\n" +
-	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleB\x06\xbaH\x03\xc8\x01\x01R\x05tuple\"*\n" +
-	"\x0eRevokeResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x80\x01\n" +
-	"\rCreateRequest\x128\n" +
-	"\bresource\x18\x01 \x01(\v2\x14.aclgate.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x125\n" +
-	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectB\x06\xbaH\x03\xc8\x01\x01R\asubject\"*\n" +
-	"\x0eCreateResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"f\n" +
-	"\fWriteRequest\x12)\n" +
-	"\x06grants\x18\x01 \x03(\v2\x11.aclgate.v1.TupleR\x06grants\x12+\n" +
-	"\arevokes\x18\x02 \x03(\v2\x11.aclgate.v1.TupleR\arevokes\")\n" +
-	"\rWriteResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xcc\x01\n" +
-	"\rDeleteRequest\x120\n" +
-	"\bresource\x18\x01 \x01(\v2\x14.aclgate.v1.ResourceR\bresource\x12-\n" +
-	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectR\asubject:Z\xbaHW\x1aU\x124at least one of resource or subject must be provided\x1a\x1dhas(resource) || has(subject)\"*\n" +
-	"\x0eDeleteResponse\x12\x18\n" +
+	"\aallowed\x18\x02 \x01(\bR\aallowed\"g\n" +
+	"\rMutateRequest\x12)\n" +
+	"\x06writes\x18\x01 \x03(\v2\x11.aclgate.v1.TupleR\x06writes\x12+\n" +
+	"\adeletes\x18\x02 \x03(\v2\x11.aclgate.v1.TupleR\adeletes\"*\n" +
+	"\x0eMutateResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xc8\x01\n" +
 	"\x12StreamCheckRequest\x12/\n" +
 	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleB\x06\xbaH\x03\xc8\x01\x01R\x05tuple\x12E\n" +
@@ -893,17 +507,12 @@ const file_aclgate_v1_service_proto_rawDesc = "" +
 	"\x13StreamCheckResponse\x12\x18\n" +
 	"\aallowed\x18\x01 \x01(\bR\aallowed\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error2\xeb\x05\n" +
-	"\n" +
-	"AclService\x12W\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error2\x82\x03\n" +
+	"\x0eAclGateService\x12W\n" +
 	"\x05Check\x12\x18.aclgate.v1.CheckRequest\x1a\x19.aclgate.v1.CheckResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/check\x12f\n" +
 	"\n" +
-	"BatchCheck\x12\x1d.aclgate.v1.BatchCheckRequest\x1a\x1e.aclgate.v1.BatchCheckResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/batch\x12W\n" +
-	"\x05Grant\x12\x18.aclgate.v1.GrantRequest\x1a\x19.aclgate.v1.GrantResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/grant\x12[\n" +
-	"\x06Revoke\x12\x19.aclgate.v1.RevokeRequest\x1a\x1a.aclgate.v1.RevokeResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/revoke\x12[\n" +
-	"\x06Create\x12\x19.aclgate.v1.CreateRequest\x1a\x1a.aclgate.v1.CreateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/create\x12X\n" +
-	"\x05Write\x12\x18.aclgate.v1.WriteRequest\x1a\x19.aclgate.v1.WriteResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/create\x12[\n" +
-	"\x06Delete\x12\x19.aclgate.v1.DeleteRequest\x1a\x1a.aclgate.v1.DeleteResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/delete\x12R\n" +
+	"BatchCheck\x12\x1d.aclgate.v1.BatchCheckRequest\x1a\x1e.aclgate.v1.BatchCheckResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/batch\x12[\n" +
+	"\x06Mutate\x12\x19.aclgate.v1.MutateRequest\x1a\x1a.aclgate.v1.MutateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/mutate\x12R\n" +
 	"\vStreamCheck\x12\x1e.aclgate.v1.StreamCheckRequest\x1a\x1f.aclgate.v1.StreamCheckResponse(\x010\x01B\x89\x01\n" +
 	"\x0ecom.aclgate.v1B\fServiceProtoP\x01Z aclgate/api/aclgate/v1;aclgatev1\xa2\x02\x03AXX\xaa\x02\n" +
 	"Aclgate.V1\xca\x02\n" +
@@ -921,66 +530,42 @@ func file_aclgate_v1_service_proto_rawDescGZIP() []byte {
 	return file_aclgate_v1_service_proto_rawDescData
 }
 
-var file_aclgate_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_aclgate_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_aclgate_v1_service_proto_goTypes = []any{
 	(*CheckRequest)(nil),        // 0: aclgate.v1.CheckRequest
 	(*CheckResponse)(nil),       // 1: aclgate.v1.CheckResponse
 	(*BatchCheckRequest)(nil),   // 2: aclgate.v1.BatchCheckRequest
 	(*BatchCheckResponse)(nil),  // 3: aclgate.v1.BatchCheckResponse
 	(*BatchCheckResult)(nil),    // 4: aclgate.v1.BatchCheckResult
-	(*GrantRequest)(nil),        // 5: aclgate.v1.GrantRequest
-	(*GrantResponse)(nil),       // 6: aclgate.v1.GrantResponse
-	(*RevokeRequest)(nil),       // 7: aclgate.v1.RevokeRequest
-	(*RevokeResponse)(nil),      // 8: aclgate.v1.RevokeResponse
-	(*CreateRequest)(nil),       // 9: aclgate.v1.CreateRequest
-	(*CreateResponse)(nil),      // 10: aclgate.v1.CreateResponse
-	(*WriteRequest)(nil),        // 11: aclgate.v1.WriteRequest
-	(*WriteResponse)(nil),       // 12: aclgate.v1.WriteResponse
-	(*DeleteRequest)(nil),       // 13: aclgate.v1.DeleteRequest
-	(*DeleteResponse)(nil),      // 14: aclgate.v1.DeleteResponse
-	(*StreamCheckRequest)(nil),  // 15: aclgate.v1.StreamCheckRequest
-	(*StreamCheckResponse)(nil), // 16: aclgate.v1.StreamCheckResponse
-	nil,                         // 17: aclgate.v1.StreamCheckRequest.ContextEntry
-	(*Tuple)(nil),               // 18: aclgate.v1.Tuple
-	(*Resource)(nil),            // 19: aclgate.v1.Resource
-	(*Subject)(nil),             // 20: aclgate.v1.Subject
+	(*MutateRequest)(nil),       // 5: aclgate.v1.MutateRequest
+	(*MutateResponse)(nil),      // 6: aclgate.v1.MutateResponse
+	(*StreamCheckRequest)(nil),  // 7: aclgate.v1.StreamCheckRequest
+	(*StreamCheckResponse)(nil), // 8: aclgate.v1.StreamCheckResponse
+	nil,                         // 9: aclgate.v1.StreamCheckRequest.ContextEntry
+	(*Tuple)(nil),               // 10: aclgate.v1.Tuple
 }
 var file_aclgate_v1_service_proto_depIdxs = []int32{
-	18, // 0: aclgate.v1.CheckRequest.tuple:type_name -> aclgate.v1.Tuple
+	10, // 0: aclgate.v1.CheckRequest.tuple:type_name -> aclgate.v1.Tuple
 	0,  // 1: aclgate.v1.BatchCheckRequest.items:type_name -> aclgate.v1.CheckRequest
 	4,  // 2: aclgate.v1.BatchCheckResponse.results:type_name -> aclgate.v1.BatchCheckResult
 	0,  // 3: aclgate.v1.BatchCheckResult.request:type_name -> aclgate.v1.CheckRequest
-	18, // 4: aclgate.v1.GrantRequest.tuple:type_name -> aclgate.v1.Tuple
-	18, // 5: aclgate.v1.RevokeRequest.tuple:type_name -> aclgate.v1.Tuple
-	19, // 6: aclgate.v1.CreateRequest.resource:type_name -> aclgate.v1.Resource
-	20, // 7: aclgate.v1.CreateRequest.subject:type_name -> aclgate.v1.Subject
-	18, // 8: aclgate.v1.WriteRequest.grants:type_name -> aclgate.v1.Tuple
-	18, // 9: aclgate.v1.WriteRequest.revokes:type_name -> aclgate.v1.Tuple
-	19, // 10: aclgate.v1.DeleteRequest.resource:type_name -> aclgate.v1.Resource
-	20, // 11: aclgate.v1.DeleteRequest.subject:type_name -> aclgate.v1.Subject
-	18, // 12: aclgate.v1.StreamCheckRequest.tuple:type_name -> aclgate.v1.Tuple
-	17, // 13: aclgate.v1.StreamCheckRequest.context:type_name -> aclgate.v1.StreamCheckRequest.ContextEntry
-	0,  // 14: aclgate.v1.AclService.Check:input_type -> aclgate.v1.CheckRequest
-	2,  // 15: aclgate.v1.AclService.BatchCheck:input_type -> aclgate.v1.BatchCheckRequest
-	5,  // 16: aclgate.v1.AclService.Grant:input_type -> aclgate.v1.GrantRequest
-	7,  // 17: aclgate.v1.AclService.Revoke:input_type -> aclgate.v1.RevokeRequest
-	9,  // 18: aclgate.v1.AclService.Create:input_type -> aclgate.v1.CreateRequest
-	11, // 19: aclgate.v1.AclService.Write:input_type -> aclgate.v1.WriteRequest
-	13, // 20: aclgate.v1.AclService.Delete:input_type -> aclgate.v1.DeleteRequest
-	15, // 21: aclgate.v1.AclService.StreamCheck:input_type -> aclgate.v1.StreamCheckRequest
-	1,  // 22: aclgate.v1.AclService.Check:output_type -> aclgate.v1.CheckResponse
-	3,  // 23: aclgate.v1.AclService.BatchCheck:output_type -> aclgate.v1.BatchCheckResponse
-	6,  // 24: aclgate.v1.AclService.Grant:output_type -> aclgate.v1.GrantResponse
-	8,  // 25: aclgate.v1.AclService.Revoke:output_type -> aclgate.v1.RevokeResponse
-	10, // 26: aclgate.v1.AclService.Create:output_type -> aclgate.v1.CreateResponse
-	12, // 27: aclgate.v1.AclService.Write:output_type -> aclgate.v1.WriteResponse
-	14, // 28: aclgate.v1.AclService.Delete:output_type -> aclgate.v1.DeleteResponse
-	16, // 29: aclgate.v1.AclService.StreamCheck:output_type -> aclgate.v1.StreamCheckResponse
-	22, // [22:30] is the sub-list for method output_type
-	14, // [14:22] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	10, // 4: aclgate.v1.MutateRequest.writes:type_name -> aclgate.v1.Tuple
+	10, // 5: aclgate.v1.MutateRequest.deletes:type_name -> aclgate.v1.Tuple
+	10, // 6: aclgate.v1.StreamCheckRequest.tuple:type_name -> aclgate.v1.Tuple
+	9,  // 7: aclgate.v1.StreamCheckRequest.context:type_name -> aclgate.v1.StreamCheckRequest.ContextEntry
+	0,  // 8: aclgate.v1.AclGateService.Check:input_type -> aclgate.v1.CheckRequest
+	2,  // 9: aclgate.v1.AclGateService.BatchCheck:input_type -> aclgate.v1.BatchCheckRequest
+	5,  // 10: aclgate.v1.AclGateService.Mutate:input_type -> aclgate.v1.MutateRequest
+	7,  // 11: aclgate.v1.AclGateService.StreamCheck:input_type -> aclgate.v1.StreamCheckRequest
+	1,  // 12: aclgate.v1.AclGateService.Check:output_type -> aclgate.v1.CheckResponse
+	3,  // 13: aclgate.v1.AclGateService.BatchCheck:output_type -> aclgate.v1.BatchCheckResponse
+	6,  // 14: aclgate.v1.AclGateService.Mutate:output_type -> aclgate.v1.MutateResponse
+	8,  // 15: aclgate.v1.AclGateService.StreamCheck:output_type -> aclgate.v1.StreamCheckResponse
+	12, // [12:16] is the sub-list for method output_type
+	8,  // [8:12] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_aclgate_v1_service_proto_init() }
@@ -995,7 +580,7 @@ func file_aclgate_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aclgate_v1_service_proto_rawDesc), len(file_aclgate_v1_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

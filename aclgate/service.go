@@ -14,7 +14,7 @@ type AclGateService interface {
 
 // aclGateService implements the AclGateService interface
 type aclGateService struct {
-	client v1.AclServiceClient
+	client v1.AclGateServiceClient
 }
 
 // Check verifies if the given user has the required permission
@@ -50,10 +50,9 @@ func (s *aclGateService) MustCheck(ctx context.Context, resourceType, resourceId
 	return result
 }
 
-func NewAclGateService(conn *grpc.ClientConn) (AclGateService, error) {
-	serviceClient := v1.NewAclServiceClient(conn)
-
+func NewAclGateService(cc grpc.ClientConnInterface) (AclGateService, error) {
+	client := v1.NewAclGateServiceClient(cc)
 	return &aclGateService{
-		client: serviceClient,
+		client: client,
 	}, nil
 }
