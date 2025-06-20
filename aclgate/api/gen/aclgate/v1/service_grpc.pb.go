@@ -23,6 +23,8 @@ const (
 	AclGateService_BatchCheck_FullMethodName  = "/aclgate.v1.AclGateService/BatchCheck"
 	AclGateService_Mutate_FullMethodName      = "/aclgate.v1.AclGateService/Mutate"
 	AclGateService_StreamCheck_FullMethodName = "/aclgate.v1.AclGateService/StreamCheck"
+	AclGateService_List_FullMethodName        = "/aclgate.v1.AclGateService/List"
+	AclGateService_Audit_FullMethodName       = "/aclgate.v1.AclGateService/Audit"
 )
 
 // AclGateServiceClient is the client API for AclGateService service.
@@ -38,6 +40,10 @@ type AclGateServiceClient interface {
 	Mutate(ctx context.Context, in *MutateRequest, opts ...grpc.CallOption) (*MutateResponse, error)
 	// StreamCheck streams permission check in real-time
 	StreamCheck(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse], error)
+	// 권한 목록 조회
+	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
+	// 감사 로그 조회
+	Audit(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error)
 }
 
 type aclGateServiceClient struct {
@@ -91,6 +97,26 @@ func (c *aclGateServiceClient) StreamCheck(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AclGateService_StreamCheckClient = grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse]
 
+func (c *aclGateServiceClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListResponse)
+	err := c.cc.Invoke(ctx, AclGateService_List_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aclGateServiceClient) Audit(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AuditResponse)
+	err := c.cc.Invoke(ctx, AclGateService_Audit_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AclGateServiceServer is the server API for AclGateService service.
 // All implementations must embed UnimplementedAclGateServiceServer
 // for forward compatibility.
@@ -104,6 +130,10 @@ type AclGateServiceServer interface {
 	Mutate(context.Context, *MutateRequest) (*MutateResponse, error)
 	// StreamCheck streams permission check in real-time
 	StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error
+	// 권한 목록 조회
+	List(context.Context, *ListRequest) (*ListResponse, error)
+	// 감사 로그 조회
+	Audit(context.Context, *AuditRequest) (*AuditResponse, error)
 	mustEmbedUnimplementedAclGateServiceServer()
 }
 
@@ -125,6 +155,12 @@ func (UnimplementedAclGateServiceServer) Mutate(context.Context, *MutateRequest)
 }
 func (UnimplementedAclGateServiceServer) StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamCheck not implemented")
+}
+func (UnimplementedAclGateServiceServer) List(context.Context, *ListRequest) (*ListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAclGateServiceServer) Audit(context.Context, *AuditRequest) (*AuditResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Audit not implemented")
 }
 func (UnimplementedAclGateServiceServer) mustEmbedUnimplementedAclGateServiceServer() {}
 func (UnimplementedAclGateServiceServer) testEmbeddedByValue()                        {}
@@ -208,6 +244,42 @@ func _AclGateService_StreamCheck_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AclGateService_StreamCheckServer = grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]
 
+func _AclGateService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AclGateServiceServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AclGateService_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AclGateServiceServer).List(ctx, req.(*ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AclGateService_Audit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuditRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AclGateServiceServer).Audit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AclGateService_Audit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AclGateServiceServer).Audit(ctx, req.(*AuditRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AclGateService_ServiceDesc is the grpc.ServiceDesc for AclGateService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -226,6 +298,14 @@ var AclGateService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Mutate",
 			Handler:    _AclGateService_Mutate_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _AclGateService_List_Handler,
+		},
+		{
+			MethodName: "Audit",
+			Handler:    _AclGateService_Audit_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

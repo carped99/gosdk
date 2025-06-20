@@ -15,9 +15,66 @@ type MockAclGateService struct {
 	mock.Mock
 }
 
-func (m *MockAclGateService) Check(ctx context.Context, resourceType, resourceId, subjectType, subjectId, relation string) (bool, error) {
-	args := m.Called(ctx, resourceType, resourceId, subjectType, subjectId, relation)
+func (m *MockAclGateService) Check(ctx context.Context, req CheckRequest) (bool, error) {
+	args := m.Called(ctx, req)
 	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockAclGateService) Write(ctx context.Context, tuples []Tuple) (bool, error) {
+	args := m.Called(ctx, tuples)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockAclGateService) Delete(ctx context.Context, tuples []Tuple) (bool, error) {
+	args := m.Called(ctx, tuples)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockAclGateService) DeleteResource(ctx context.Context, resourceType, resourceId string) (bool, error) {
+	args := m.Called(ctx, resourceType, resourceId)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockAclGateService) DeleteSubject(ctx context.Context, subjectType, subjectId string) (bool, error) {
+	args := m.Called(ctx, subjectType, subjectId)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockAclGateService) BatchCheck(ctx context.Context, requests []CheckRequest) ([]BatchCheckResult, error) {
+	args := m.Called(ctx, requests)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]BatchCheckResult), args.Error(1)
+}
+
+func (m *MockAclGateService) Mutate(ctx context.Context, writes []Tuple, deletes []Tuple) (bool, error) {
+	args := m.Called(ctx, writes, deletes)
+	return args.Bool(0), args.Error(1)
+}
+
+func (m *MockAclGateService) StreamCheck(ctx context.Context) (StreamCheckClient, error) {
+	args := m.Called(ctx)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(StreamCheckClient), args.Error(1)
+}
+
+func (m *MockAclGateService) List(ctx context.Context, req ListRequest) (*ListResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*ListResponse), args.Error(1)
+}
+
+func (m *MockAclGateService) Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error) {
+	args := m.Called(ctx, req)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*AuditResponse), args.Error(1)
 }
 
 func TestNewContext(t *testing.T) {
@@ -177,11 +234,7 @@ func TestWithContext_Middleware(t *testing.T) {
 func TestCheckPermission(t *testing.T) {
 	tests := []struct {
 		name           string
-		resourceType   string
-		resourceId     string
-		subjectType    string
-		subjectId      string
-		relation       string
+		request        CheckRequest
 		setupContext   func() context.Context
 		mockResult     bool
 		mockError      error
@@ -189,15 +242,11 @@ func TestCheckPermission(t *testing.T) {
 		expectedError  bool
 	}{
 		{
-			name:         "successful permission check",
-			resourceType: "document",
-			resourceId:   "doc123",
-			subjectType:  "user",
-			subjectId:    "user456",
-			relation:     "read",
+			name:    "successful permission check",
+			request: CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "read"}},
 			setupContext: func() context.Context {
 				mockService := &MockAclGateService{}
-				mockService.On("Check", mock.Anything, "document", "doc123", "user", "user456", "read").
+				mockService.On("Check", mock.Anything, CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "read"}}).
 					Return(true, nil)
 				return NewContext(context.Background(), mockService)
 			},
@@ -207,15 +256,11 @@ func TestCheckPermission(t *testing.T) {
 			expectedError:  false,
 		},
 		{
-			name:         "permission denied",
-			resourceType: "document",
-			resourceId:   "doc123",
-			subjectType:  "user",
-			subjectId:    "user456",
-			relation:     "write",
+			name:    "permission denied",
+			request: CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "write"}},
 			setupContext: func() context.Context {
 				mockService := &MockAclGateService{}
-				mockService.On("Check", mock.Anything, "document", "doc123", "user", "user456", "write").
+				mockService.On("Check", mock.Anything, CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "write"}}).
 					Return(false, nil)
 				return NewContext(context.Background(), mockService)
 			},
@@ -225,15 +270,11 @@ func TestCheckPermission(t *testing.T) {
 			expectedError:  false,
 		},
 		{
-			name:         "service error",
-			resourceType: "document",
-			resourceId:   "doc123",
-			subjectType:  "user",
-			subjectId:    "user456",
-			relation:     "read",
+			name:    "service error",
+			request: CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "read"}},
 			setupContext: func() context.Context {
 				mockService := &MockAclGateService{}
-				mockService.On("Check", mock.Anything, "document", "doc123", "user", "user456", "read").
+				mockService.On("Check", mock.Anything, CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "read"}}).
 					Return(false, assert.AnError)
 				return NewContext(context.Background(), mockService)
 			},
@@ -243,12 +284,8 @@ func TestCheckPermission(t *testing.T) {
 			expectedError:  true,
 		},
 		{
-			name:         "service not in context",
-			resourceType: "document",
-			resourceId:   "doc123",
-			subjectType:  "user",
-			subjectId:    "user456",
-			relation:     "read",
+			name:    "service not in context",
+			request: CheckRequest{Tuple: Tuple{ResourceType: "document", ResourceId: "doc123", SubjectType: "user", SubjectId: "user456", Relation: "read"}},
 			setupContext: func() context.Context {
 				return context.Background()
 			},
@@ -263,7 +300,7 @@ func TestCheckPermission(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := tt.setupContext()
 
-			result, err := CheckPermission(ctx, tt.resourceType, tt.resourceId, tt.subjectType, tt.subjectId, tt.relation)
+			result, err := CheckPermission(ctx, tt.request)
 
 			if tt.expectedError {
 				assert.Error(t, err)

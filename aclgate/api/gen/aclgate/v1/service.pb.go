@@ -11,7 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -475,6 +475,335 @@ func (x *StreamCheckResponse) GetError() string {
 	return ""
 }
 
+// 권한 목록 조회 요청
+type ListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Subject       *Subject               `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Relation      *Relation              `protobuf:"bytes,3,opt,name=relation,proto3" json:"relation,omitempty"`
+	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRequest) Reset() {
+	*x = ListRequest{}
+	mi := &file_aclgate_v1_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRequest) ProtoMessage() {}
+
+func (x *ListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aclgate_v1_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRequest.ProtoReflect.Descriptor instead.
+func (*ListRequest) Descriptor() ([]byte, []int) {
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListRequest) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *ListRequest) GetSubject() *Subject {
+	if x != nil {
+		return x.Subject
+	}
+	return nil
+}
+
+func (x *ListRequest) GetRelation() *Relation {
+	if x != nil {
+		return x.Relation
+	}
+	return nil
+}
+
+func (x *ListRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+// 권한 목록 조회 응답
+type ListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Tuples        []*Tuple               `protobuf:"bytes,1,rep,name=tuples,proto3" json:"tuples,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListResponse) Reset() {
+	*x = ListResponse{}
+	mi := &file_aclgate_v1_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListResponse) ProtoMessage() {}
+
+func (x *ListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aclgate_v1_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListResponse.ProtoReflect.Descriptor instead.
+func (*ListResponse) Descriptor() ([]byte, []int) {
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ListResponse) GetTuples() []*Tuple {
+	if x != nil {
+		return x.Tuples
+	}
+	return nil
+}
+
+// 감사 로그 조회 요청
+type AuditRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Subject       *Subject               `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
+	Relation      *Relation              `protobuf:"bytes,3,opt,name=relation,proto3" json:"relation,omitempty"`
+	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Offset        int32                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuditRequest) Reset() {
+	*x = AuditRequest{}
+	mi := &file_aclgate_v1_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuditRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuditRequest) ProtoMessage() {}
+
+func (x *AuditRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aclgate_v1_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuditRequest.ProtoReflect.Descriptor instead.
+func (*AuditRequest) Descriptor() ([]byte, []int) {
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *AuditRequest) GetResource() *Resource {
+	if x != nil {
+		return x.Resource
+	}
+	return nil
+}
+
+func (x *AuditRequest) GetSubject() *Subject {
+	if x != nil {
+		return x.Subject
+	}
+	return nil
+}
+
+func (x *AuditRequest) GetRelation() *Relation {
+	if x != nil {
+		return x.Relation
+	}
+	return nil
+}
+
+func (x *AuditRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *AuditRequest) GetOffset() int32 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+// 감사 로그
+type AuditLog struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"` // 예: WRITE, DELETE
+	Tuple         *Tuple                 `protobuf:"bytes,3,opt,name=tuple,proto3" json:"tuple,omitempty"`
+	Actor         string                 `protobuf:"bytes,4,opt,name=actor,proto3" json:"actor,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Reason        string                 `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuditLog) Reset() {
+	*x = AuditLog{}
+	mi := &file_aclgate_v1_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuditLog) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuditLog) ProtoMessage() {}
+
+func (x *AuditLog) ProtoReflect() protoreflect.Message {
+	mi := &file_aclgate_v1_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuditLog.ProtoReflect.Descriptor instead.
+func (*AuditLog) Descriptor() ([]byte, []int) {
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *AuditLog) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AuditLog) GetAction() string {
+	if x != nil {
+		return x.Action
+	}
+	return ""
+}
+
+func (x *AuditLog) GetTuple() *Tuple {
+	if x != nil {
+		return x.Tuple
+	}
+	return nil
+}
+
+func (x *AuditLog) GetActor() string {
+	if x != nil {
+		return x.Actor
+	}
+	return ""
+}
+
+func (x *AuditLog) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
+}
+
+func (x *AuditLog) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+// 감사 로그 목록 응답
+type AuditResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Logs          []*AuditLog            `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuditResponse) Reset() {
+	*x = AuditResponse{}
+	mi := &file_aclgate_v1_service_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuditResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuditResponse) ProtoMessage() {}
+
+func (x *AuditResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aclgate_v1_service_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuditResponse.ProtoReflect.Descriptor instead.
+func (*AuditResponse) Descriptor() ([]byte, []int) {
+	return file_aclgate_v1_service_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *AuditResponse) GetLogs() []*AuditLog {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
 var File_aclgate_v1_service_proto protoreflect.FileDescriptor
 
 const file_aclgate_v1_service_proto_rawDesc = "" +
@@ -507,13 +836,38 @@ const file_aclgate_v1_service_proto_rawDesc = "" +
 	"\x13StreamCheckResponse\x12\x18\n" +
 	"\aallowed\x18\x01 \x01(\bR\aallowed\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error2\x82\x03\n" +
-	"\x0eAclGateService\x12W\n" +
-	"\x05Check\x12\x18.aclgate.v1.CheckRequest\x1a\x19.aclgate.v1.CheckResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/check\x12f\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\"\xce\x01\n" +
+	"\vListRequest\x120\n" +
+	"\bresource\x18\x01 \x01(\v2\x14.aclgate.v1.ResourceR\bresource\x12-\n" +
+	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectR\asubject\x120\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationR\brelation\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x05 \x01(\x05R\x06offset\"9\n" +
+	"\fListResponse\x12)\n" +
+	"\x06tuples\x18\x01 \x03(\v2\x11.aclgate.v1.TupleR\x06tuples\"\xcf\x01\n" +
+	"\fAuditRequest\x120\n" +
+	"\bresource\x18\x01 \x01(\v2\x14.aclgate.v1.ResourceR\bresource\x12-\n" +
+	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectR\asubject\x120\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationR\brelation\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
+	"\x06offset\x18\x05 \x01(\x05R\x06offset\"\xc3\x01\n" +
+	"\bAuditLog\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06action\x18\x02 \x01(\tR\x06action\x12'\n" +
+	"\x05tuple\x18\x03 \x01(\v2\x11.aclgate.v1.TupleR\x05tuple\x12\x14\n" +
+	"\x05actor\x18\x04 \x01(\tR\x05actor\x128\n" +
+	"\ttimestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x16\n" +
+	"\x06reason\x18\x06 \x01(\tR\x06reason\"9\n" +
+	"\rAuditResponse\x12(\n" +
+	"\x04logs\x18\x01 \x03(\v2\x14.aclgate.v1.AuditLogR\x04logs2\xa7\x04\n" +
+	"\x0eAclGateService\x12T\n" +
+	"\x05Check\x12\x18.aclgate.v1.CheckRequest\x1a\x19.aclgate.v1.CheckResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/acls/v1/check\x12f\n" +
 	"\n" +
 	"BatchCheck\x12\x1d.aclgate.v1.BatchCheckRequest\x1a\x1e.aclgate.v1.BatchCheckResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/batch\x12[\n" +
 	"\x06Mutate\x12\x19.aclgate.v1.MutateRequest\x1a\x1a.aclgate.v1.MutateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/mutate\x12R\n" +
-	"\vStreamCheck\x12\x1e.aclgate.v1.StreamCheckRequest\x1a\x1f.aclgate.v1.StreamCheckResponse(\x010\x01B\x89\x01\n" +
+	"\vStreamCheck\x12\x1e.aclgate.v1.StreamCheckRequest\x1a\x1f.aclgate.v1.StreamCheckResponse(\x010\x01\x12P\n" +
+	"\x04List\x12\x17.aclgate.v1.ListRequest\x1a\x18.aclgate.v1.ListResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/acls/v1/list\x12T\n" +
+	"\x05Audit\x12\x18.aclgate.v1.AuditRequest\x1a\x19.aclgate.v1.AuditResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/acls/v1/auditB\x89\x01\n" +
 	"\x0ecom.aclgate.v1B\fServiceProtoP\x01Z aclgate/api/aclgate/v1;aclgatev1\xa2\x02\x03AXX\xaa\x02\n" +
 	"Aclgate.V1\xca\x02\n" +
 	"Aclgate\\V1\xe2\x02\x16Aclgate\\V1\\GPBMetadata\xea\x02\vAclgate::V1b\x06proto3"
@@ -530,42 +884,65 @@ func file_aclgate_v1_service_proto_rawDescGZIP() []byte {
 	return file_aclgate_v1_service_proto_rawDescData
 }
 
-var file_aclgate_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_aclgate_v1_service_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_aclgate_v1_service_proto_goTypes = []any{
-	(*CheckRequest)(nil),        // 0: aclgate.v1.CheckRequest
-	(*CheckResponse)(nil),       // 1: aclgate.v1.CheckResponse
-	(*BatchCheckRequest)(nil),   // 2: aclgate.v1.BatchCheckRequest
-	(*BatchCheckResponse)(nil),  // 3: aclgate.v1.BatchCheckResponse
-	(*BatchCheckResult)(nil),    // 4: aclgate.v1.BatchCheckResult
-	(*MutateRequest)(nil),       // 5: aclgate.v1.MutateRequest
-	(*MutateResponse)(nil),      // 6: aclgate.v1.MutateResponse
-	(*StreamCheckRequest)(nil),  // 7: aclgate.v1.StreamCheckRequest
-	(*StreamCheckResponse)(nil), // 8: aclgate.v1.StreamCheckResponse
-	nil,                         // 9: aclgate.v1.StreamCheckRequest.ContextEntry
-	(*Tuple)(nil),               // 10: aclgate.v1.Tuple
+	(*CheckRequest)(nil),          // 0: aclgate.v1.CheckRequest
+	(*CheckResponse)(nil),         // 1: aclgate.v1.CheckResponse
+	(*BatchCheckRequest)(nil),     // 2: aclgate.v1.BatchCheckRequest
+	(*BatchCheckResponse)(nil),    // 3: aclgate.v1.BatchCheckResponse
+	(*BatchCheckResult)(nil),      // 4: aclgate.v1.BatchCheckResult
+	(*MutateRequest)(nil),         // 5: aclgate.v1.MutateRequest
+	(*MutateResponse)(nil),        // 6: aclgate.v1.MutateResponse
+	(*StreamCheckRequest)(nil),    // 7: aclgate.v1.StreamCheckRequest
+	(*StreamCheckResponse)(nil),   // 8: aclgate.v1.StreamCheckResponse
+	(*ListRequest)(nil),           // 9: aclgate.v1.ListRequest
+	(*ListResponse)(nil),          // 10: aclgate.v1.ListResponse
+	(*AuditRequest)(nil),          // 11: aclgate.v1.AuditRequest
+	(*AuditLog)(nil),              // 12: aclgate.v1.AuditLog
+	(*AuditResponse)(nil),         // 13: aclgate.v1.AuditResponse
+	nil,                           // 14: aclgate.v1.StreamCheckRequest.ContextEntry
+	(*Tuple)(nil),                 // 15: aclgate.v1.Tuple
+	(*Resource)(nil),              // 16: aclgate.v1.Resource
+	(*Subject)(nil),               // 17: aclgate.v1.Subject
+	(*Relation)(nil),              // 18: aclgate.v1.Relation
+	(*timestamppb.Timestamp)(nil), // 19: google.protobuf.Timestamp
 }
 var file_aclgate_v1_service_proto_depIdxs = []int32{
-	10, // 0: aclgate.v1.CheckRequest.tuple:type_name -> aclgate.v1.Tuple
+	15, // 0: aclgate.v1.CheckRequest.tuple:type_name -> aclgate.v1.Tuple
 	0,  // 1: aclgate.v1.BatchCheckRequest.items:type_name -> aclgate.v1.CheckRequest
 	4,  // 2: aclgate.v1.BatchCheckResponse.results:type_name -> aclgate.v1.BatchCheckResult
 	0,  // 3: aclgate.v1.BatchCheckResult.request:type_name -> aclgate.v1.CheckRequest
-	10, // 4: aclgate.v1.MutateRequest.writes:type_name -> aclgate.v1.Tuple
-	10, // 5: aclgate.v1.MutateRequest.deletes:type_name -> aclgate.v1.Tuple
-	10, // 6: aclgate.v1.StreamCheckRequest.tuple:type_name -> aclgate.v1.Tuple
-	9,  // 7: aclgate.v1.StreamCheckRequest.context:type_name -> aclgate.v1.StreamCheckRequest.ContextEntry
-	0,  // 8: aclgate.v1.AclGateService.Check:input_type -> aclgate.v1.CheckRequest
-	2,  // 9: aclgate.v1.AclGateService.BatchCheck:input_type -> aclgate.v1.BatchCheckRequest
-	5,  // 10: aclgate.v1.AclGateService.Mutate:input_type -> aclgate.v1.MutateRequest
-	7,  // 11: aclgate.v1.AclGateService.StreamCheck:input_type -> aclgate.v1.StreamCheckRequest
-	1,  // 12: aclgate.v1.AclGateService.Check:output_type -> aclgate.v1.CheckResponse
-	3,  // 13: aclgate.v1.AclGateService.BatchCheck:output_type -> aclgate.v1.BatchCheckResponse
-	6,  // 14: aclgate.v1.AclGateService.Mutate:output_type -> aclgate.v1.MutateResponse
-	8,  // 15: aclgate.v1.AclGateService.StreamCheck:output_type -> aclgate.v1.StreamCheckResponse
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	15, // 4: aclgate.v1.MutateRequest.writes:type_name -> aclgate.v1.Tuple
+	15, // 5: aclgate.v1.MutateRequest.deletes:type_name -> aclgate.v1.Tuple
+	15, // 6: aclgate.v1.StreamCheckRequest.tuple:type_name -> aclgate.v1.Tuple
+	14, // 7: aclgate.v1.StreamCheckRequest.context:type_name -> aclgate.v1.StreamCheckRequest.ContextEntry
+	16, // 8: aclgate.v1.ListRequest.resource:type_name -> aclgate.v1.Resource
+	17, // 9: aclgate.v1.ListRequest.subject:type_name -> aclgate.v1.Subject
+	18, // 10: aclgate.v1.ListRequest.relation:type_name -> aclgate.v1.Relation
+	15, // 11: aclgate.v1.ListResponse.tuples:type_name -> aclgate.v1.Tuple
+	16, // 12: aclgate.v1.AuditRequest.resource:type_name -> aclgate.v1.Resource
+	17, // 13: aclgate.v1.AuditRequest.subject:type_name -> aclgate.v1.Subject
+	18, // 14: aclgate.v1.AuditRequest.relation:type_name -> aclgate.v1.Relation
+	15, // 15: aclgate.v1.AuditLog.tuple:type_name -> aclgate.v1.Tuple
+	19, // 16: aclgate.v1.AuditLog.timestamp:type_name -> google.protobuf.Timestamp
+	12, // 17: aclgate.v1.AuditResponse.logs:type_name -> aclgate.v1.AuditLog
+	0,  // 18: aclgate.v1.AclGateService.Check:input_type -> aclgate.v1.CheckRequest
+	2,  // 19: aclgate.v1.AclGateService.BatchCheck:input_type -> aclgate.v1.BatchCheckRequest
+	5,  // 20: aclgate.v1.AclGateService.Mutate:input_type -> aclgate.v1.MutateRequest
+	7,  // 21: aclgate.v1.AclGateService.StreamCheck:input_type -> aclgate.v1.StreamCheckRequest
+	9,  // 22: aclgate.v1.AclGateService.List:input_type -> aclgate.v1.ListRequest
+	11, // 23: aclgate.v1.AclGateService.Audit:input_type -> aclgate.v1.AuditRequest
+	1,  // 24: aclgate.v1.AclGateService.Check:output_type -> aclgate.v1.CheckResponse
+	3,  // 25: aclgate.v1.AclGateService.BatchCheck:output_type -> aclgate.v1.BatchCheckResponse
+	6,  // 26: aclgate.v1.AclGateService.Mutate:output_type -> aclgate.v1.MutateResponse
+	8,  // 27: aclgate.v1.AclGateService.StreamCheck:output_type -> aclgate.v1.StreamCheckResponse
+	10, // 28: aclgate.v1.AclGateService.List:output_type -> aclgate.v1.ListResponse
+	13, // 29: aclgate.v1.AclGateService.Audit:output_type -> aclgate.v1.AuditResponse
+	24, // [24:30] is the sub-list for method output_type
+	18, // [18:24] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_aclgate_v1_service_proto_init() }
@@ -580,7 +957,7 @@ func file_aclgate_v1_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aclgate_v1_service_proto_rawDesc), len(file_aclgate_v1_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -15,8 +15,7 @@ service AclGateService {
   // 단건 권한 확인
   rpc Check(CheckRequest) returns (CheckResponse) {
     option (google.api.http) = {
-      post: "/acls/v1/check"
-      body: "*"
+      get: "/acls/v1/check"
     };
   }
 
@@ -37,6 +36,20 @@ service AclGateService {
 
   // StreamCheck streams permission check in real-time
   rpc StreamCheck(stream StreamCheckRequest) returns (stream StreamCheckResponse);
+
+  // 권한 목록 조회
+  rpc List(ListRequest) returns (ListResponse) {
+    option (google.api.http) = {
+      get: "/acls/v1/list"
+    };
+  }
+
+  // 감사 로그 조회
+  rpc Audit(AuditRequest) returns (AuditResponse) {
+    option (google.api.http) = {
+      get: "/acls/v1/audit"
+    };
+  }
 }
 
 // 단건 요청
@@ -86,4 +99,42 @@ message StreamCheckResponse {
   bool allowed = 1;
   string reason = 2;
   string error = 3;
+}
+
+// 권한 목록 조회 요청
+message ListRequest {
+  Resource resource = 1;
+  Subject subject = 2;
+  Relation relation = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+// 권한 목록 조회 응답
+message ListResponse {
+  repeated Tuple tuples = 1;
+}
+
+// 감사 로그 조회 요청
+message AuditRequest {
+  Resource resource = 1;
+  Subject subject = 2;
+  Relation relation = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+// 감사 로그
+message AuditLog {
+  string id = 1;
+  string action = 2; // 예: WRITE, DELETE
+  Tuple tuple = 3;
+  string actor = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  string reason = 6;
+}
+
+// 감사 로그 목록 응답
+message AuditResponse {
+  repeated AuditLog logs = 1;
 }

@@ -30,7 +30,7 @@ func FromContext(ctx context.Context) (AclGateService, error) {
 	}
 	service, ok := ctx.Value(aclServiceKey).(AclGateService)
 	if !ok {
-		return nil, fmt.Errorf("expected AclService in context, but not found or invalid type")
+		return nil, fmt.Errorf("AclGateService not found in context or invalid type")
 	}
 	return service, nil
 }
@@ -50,10 +50,55 @@ func NewContext(ctx context.Context, service AclGateService) context.Context {
 }
 
 // CheckPermission is a helper function to check permissions using the service from context
-func CheckPermission(ctx context.Context, resourceType, resourceId, subjectType, subjectId, relation string) (bool, error) {
+func CheckPermission(ctx context.Context, req CheckRequest) (bool, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return false, err
 	}
-	return service.Check(ctx, resourceType, resourceId, subjectType, subjectId, relation)
+	return service.Check(ctx, req)
+}
+
+// BatchCheckPermissions is a helper function to check multiple permissions using the service from context
+func BatchCheckPermissions(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error) {
+	service, err := FromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return service.BatchCheck(ctx, reqs)
+}
+
+// WritePermissions is a helper function to write permissions using the service from context
+func WritePermissions(ctx context.Context, tuples []Tuple) (bool, error) {
+	service, err := FromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return service.Write(ctx, tuples)
+}
+
+// DeletePermissions is a helper function to delete permissions using the service from context
+func DeletePermissions(ctx context.Context, tuples []Tuple) (bool, error) {
+	service, err := FromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return service.Delete(ctx, tuples)
+}
+
+// DeleteResourcePermissions is a helper function to delete all permissions for a resource using the service from context
+func DeleteResourcePermissions(ctx context.Context, resourceType, resourceId string) (bool, error) {
+	service, err := FromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return service.DeleteResource(ctx, resourceType, resourceId)
+}
+
+// DeleteSubjectPermissions is a helper function to delete all permissions for a subject using the service from context
+func DeleteSubjectPermissions(ctx context.Context, subjectType, subjectId string) (bool, error) {
+	service, err := FromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return service.DeleteSubject(ctx, subjectType, subjectId)
 }
