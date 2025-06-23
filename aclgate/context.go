@@ -15,7 +15,7 @@ const (
 )
 
 // WithContext creates a middleware that injects AclService into the request context
-func WithContext(service AclGateService) func(http.Handler) http.Handler {
+func WithContext(service ClientService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			next.ServeHTTP(w, r.WithContext(NewContext(r.Context(), service)))
@@ -24,19 +24,19 @@ func WithContext(service AclGateService) func(http.Handler) http.Handler {
 }
 
 // FromContext retrieves AclService from the context
-func FromContext(ctx context.Context) (AclGateService, error) {
+func FromContext(ctx context.Context) (ClientService, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("context is nil")
 	}
-	service, ok := ctx.Value(aclServiceKey).(AclGateService)
+	service, ok := ctx.Value(aclServiceKey).(ClientService)
 	if !ok {
-		return nil, fmt.Errorf("AclGateService not found in context or invalid type")
+		return nil, fmt.Errorf("ClientService not found in context or invalid type")
 	}
 	return service, nil
 }
 
 // MustFromContext retrieves AclService from the context and panics if not found
-func MustFromContext(ctx context.Context) AclGateService {
+func MustFromContext(ctx context.Context) ClientService {
 	service, err := FromContext(ctx)
 	if err != nil {
 		panic(err)
@@ -45,12 +45,12 @@ func MustFromContext(ctx context.Context) AclGateService {
 }
 
 // NewContext creates a new context with AclService
-func NewContext(ctx context.Context, service AclGateService) context.Context {
+func NewContext(ctx context.Context, service ClientService) context.Context {
 	return context.WithValue(ctx, aclServiceKey, service)
 }
 
-// CheckPermission is a helper function to check permissions using the service from context
-func CheckPermission(ctx context.Context, req CheckRequest) (bool, error) {
+// Check is a helper function to check permissions using the service from context
+func Check(ctx context.Context, req CheckRequest) (bool, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return false, err
@@ -58,8 +58,8 @@ func CheckPermission(ctx context.Context, req CheckRequest) (bool, error) {
 	return service.Check(ctx, req)
 }
 
-// BatchCheckPermissions is a helper function to check multiple permissions using the service from context
-func BatchCheckPermissions(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error) {
+// BatchCheck is a helper function to check multiple permissions using the service from context
+func BatchCheck(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return nil, err
@@ -67,8 +67,17 @@ func BatchCheckPermissions(ctx context.Context, reqs []CheckRequest) ([]BatchChe
 	return service.BatchCheck(ctx, reqs)
 }
 
-// WritePermissions is a helper function to write permissions using the service from context
-func WritePermissions(ctx context.Context, tuples []Tuple) (bool, error) {
+// Mutate is a helper function to mutate permissions using the service from context
+func Mutate(ctx context.Context, writes, deletes []Tuple) (bool, error) {
+	service, err := FromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	return service.Mutate(ctx, writes, deletes)
+}
+
+// Write is a helper function to write permissions using the service from context
+func Write(ctx context.Context, tuples []Tuple) (bool, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return false, err
@@ -76,8 +85,8 @@ func WritePermissions(ctx context.Context, tuples []Tuple) (bool, error) {
 	return service.Write(ctx, tuples)
 }
 
-// DeletePermissions is a helper function to delete permissions using the service from context
-func DeletePermissions(ctx context.Context, tuples []Tuple) (bool, error) {
+// Delete is a helper function to delete permissions using the service from context
+func Delete(ctx context.Context, tuples []Tuple) (bool, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return false, err
@@ -85,20 +94,20 @@ func DeletePermissions(ctx context.Context, tuples []Tuple) (bool, error) {
 	return service.Delete(ctx, tuples)
 }
 
-// DeleteResourcePermissions is a helper function to delete all permissions for a resource using the service from context
-func DeleteResourcePermissions(ctx context.Context, resourceType, resourceId string) (bool, error) {
+// DeleteResource is a helper function to delete all permissions for a resource using the service from context
+func DeleteResource(ctx context.Context, resourceType, resourceId string) (bool, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return false, err
 	}
-	return service.DeleteResource(ctx, resourceType, resourceId)
+	return service.DeleteResource(ctx, NewResource(resourceType, resourceId))
 }
 
-// DeleteSubjectPermissions is a helper function to delete all permissions for a subject using the service from context
-func DeleteSubjectPermissions(ctx context.Context, subjectType, subjectId string) (bool, error) {
+// DeleteSubject is a helper function to delete all permissions for a subject using the service from context
+func DeleteSubject(ctx context.Context, subjectType, subjectId string) (bool, error) {
 	service, err := FromContext(ctx)
 	if err != nil {
 		return false, err
 	}
-	return service.DeleteSubject(ctx, subjectType, subjectId)
+	return service.DeleteSubject(ctx, NewSubject(subjectType, subjectId))
 }

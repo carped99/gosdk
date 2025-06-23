@@ -5,11 +5,9 @@ import (
 )
 
 type Tuple struct {
-	ResourceType string
-	ResourceId   string
-	SubjectType  string
-	SubjectId    string
-	Relation     string
+	Resource Resource
+	Subject  Subject
+	Relation Relation
 }
 
 type CheckRequest struct {
@@ -29,11 +27,9 @@ var (
 // NewTuple creates a new Tuple with the given parameters
 func NewTuple(resourceType, resourceId, subjectType, subjectId, relation string) Tuple {
 	return Tuple{
-		ResourceType: resourceType,
-		ResourceId:   resourceId,
-		SubjectType:  subjectType,
-		SubjectId:    subjectId,
-		Relation:     relation,
+		Resource: NewResource(resourceType, resourceId),
+		Subject:  NewSubject(subjectType, subjectId),
+		Relation: NewRelation(relation),
 	}
 }
 
@@ -49,18 +45,28 @@ func NewCheckRequestFromParams(resourceType, resourceId, subjectType, subjectId,
 	}
 }
 
-// ListRequest represents a request to list permissions
-type ListRequest struct {
-	Resource Resource
+// ListResourcesRequest represents a request to list permissions
+type ListResourcesRequest struct {
+	Type     string
 	Subject  Subject
+	Relation Relation
+}
+
+type ListResourcesResponse struct {
+	Resources []Resource
+}
+
+type ListSubjectsRequest struct {
+	Type     string
+	Resource Resource
 	Relation Relation
 	Limit    int32
 	Offset   int32
 }
 
-// ListResponse represents a response containing a list of permissions
-type ListResponse struct {
-	Tuples []Tuple
+// ListSubjectsResponse represents a response containing a list of permissions
+type ListSubjectsResponse struct {
+	Subjects []Subject
 }
 
 // AuditRequest represents a request to list audit logs
@@ -124,17 +130,6 @@ func NewSubject(subjectType, subjectId string) Subject {
 func NewRelation(name string) Relation {
 	return Relation{
 		Name: name,
-	}
-}
-
-// NewListRequest creates a new ListRequest
-func NewListRequest(resource Resource, subject Subject, relation Relation, limit, offset int32) ListRequest {
-	return ListRequest{
-		Resource: resource,
-		Subject:  subject,
-		Relation: relation,
-		Limit:    limit,
-		Offset:   offset,
 	}
 }
 

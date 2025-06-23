@@ -9,7 +9,7 @@ import "buf/validate/validate.proto";
 
 message Subject {
   string type = 1 [(buf.validate.field).string = {
-    pattern : "^[^\\s]{1,256}$",
+    pattern : "^[^\\s]{1,254}$",
   }];
 
   string id = 2 [(buf.validate.field).string = {
@@ -19,11 +19,11 @@ message Subject {
 
 message Resource {
   string type = 1 [(buf.validate.field).string = {
-    pattern : "^[^\\s]{1,256}$",
+    pattern : "^[^:#@\\s]{1,254}$",
   }];
 
   string id = 2 [(buf.validate.field).string = {
-    pattern : "^[^\\s]{1,256}$",
+    pattern : "^[^#:\\s]+$",
   }];
 }
 

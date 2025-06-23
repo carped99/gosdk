@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockAclGateService is a mock implementation of AclGateService for testing
+// MockAclGateService is a mock implementation of ClientService for testing
 type MockAclGateService struct {
 	mock.Mock
 }
@@ -61,12 +61,12 @@ func (m *MockAclGateService) StreamCheck(ctx context.Context) (StreamCheckClient
 	return args.Get(0).(StreamCheckClient), args.Error(1)
 }
 
-func (m *MockAclGateService) List(ctx context.Context, req ListRequest) (*ListResponse, error) {
+func (m *MockAclGateService) List(ctx context.Context, req ListSubjectsRequest) (*ListSubjectsResponse, error) {
 	args := m.Called(ctx, req)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*ListResponse), args.Error(1)
+	return args.Get(0).(*ListSubjectsResponse), args.Error(1)
 }
 
 func (m *MockAclGateService) Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error) {
@@ -147,7 +147,7 @@ func TestFromContext(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, service)
-				assert.Implements(t, (*AclGateService)(nil), service)
+				assert.Implements(t, (*ClientService)(nil), service)
 			}
 		})
 	}
@@ -188,7 +188,7 @@ func TestMustFromContext(t *testing.T) {
 				assert.NotPanics(t, func() {
 					service := MustFromContext(ctx)
 					assert.NotNil(t, service)
-					assert.Implements(t, (*AclGateService)(nil), service)
+					assert.Implements(t, (*ClientService)(nil), service)
 				})
 			}
 		})

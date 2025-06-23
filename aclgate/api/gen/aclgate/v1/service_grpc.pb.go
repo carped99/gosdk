@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AclGateService_Check_FullMethodName       = "/aclgate.v1.AclGateService/Check"
-	AclGateService_BatchCheck_FullMethodName  = "/aclgate.v1.AclGateService/BatchCheck"
-	AclGateService_Mutate_FullMethodName      = "/aclgate.v1.AclGateService/Mutate"
-	AclGateService_StreamCheck_FullMethodName = "/aclgate.v1.AclGateService/StreamCheck"
-	AclGateService_List_FullMethodName        = "/aclgate.v1.AclGateService/List"
-	AclGateService_Audit_FullMethodName       = "/aclgate.v1.AclGateService/Audit"
+	AclGateService_Check_FullMethodName         = "/aclgate.v1.AclGateService/Check"
+	AclGateService_BatchCheck_FullMethodName    = "/aclgate.v1.AclGateService/BatchCheck"
+	AclGateService_Mutate_FullMethodName        = "/aclgate.v1.AclGateService/Mutate"
+	AclGateService_StreamCheck_FullMethodName   = "/aclgate.v1.AclGateService/StreamCheck"
+	AclGateService_ListResources_FullMethodName = "/aclgate.v1.AclGateService/ListResources"
+	AclGateService_ListSubjects_FullMethodName  = "/aclgate.v1.AclGateService/ListSubjects"
+	AclGateService_Audit_FullMethodName         = "/aclgate.v1.AclGateService/Audit"
 )
 
 // AclGateServiceClient is the client API for AclGateService service.
@@ -37,11 +38,14 @@ type AclGateServiceClient interface {
 	Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
 	// 다건 권한 확인
 	BatchCheck(ctx context.Context, in *BatchCheckRequest, opts ...grpc.CallOption) (*BatchCheckResponse, error)
+	// 권한 변경
 	Mutate(ctx context.Context, in *MutateRequest, opts ...grpc.CallOption) (*MutateResponse, error)
 	// StreamCheck streams permission check in real-time
 	StreamCheck(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse], error)
 	// 권한 목록 조회
-	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
+	ListResources(ctx context.Context, in *ListResourcesRequest, opts ...grpc.CallOption) (*ListResourcesResponse, error)
+	// 주체 목록 조회
+	ListSubjects(ctx context.Context, in *ListSubjectsRequest, opts ...grpc.CallOption) (*ListSubjectsResponse, error)
 	// 감사 로그 조회
 	Audit(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error)
 }
@@ -97,10 +101,20 @@ func (c *aclGateServiceClient) StreamCheck(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AclGateService_StreamCheckClient = grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse]
 
-func (c *aclGateServiceClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+func (c *aclGateServiceClient) ListResources(ctx context.Context, in *ListResourcesRequest, opts ...grpc.CallOption) (*ListResourcesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListResponse)
-	err := c.cc.Invoke(ctx, AclGateService_List_FullMethodName, in, out, cOpts...)
+	out := new(ListResourcesResponse)
+	err := c.cc.Invoke(ctx, AclGateService_ListResources_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aclGateServiceClient) ListSubjects(ctx context.Context, in *ListSubjectsRequest, opts ...grpc.CallOption) (*ListSubjectsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSubjectsResponse)
+	err := c.cc.Invoke(ctx, AclGateService_ListSubjects_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,11 +141,14 @@ type AclGateServiceServer interface {
 	Check(context.Context, *CheckRequest) (*CheckResponse, error)
 	// 다건 권한 확인
 	BatchCheck(context.Context, *BatchCheckRequest) (*BatchCheckResponse, error)
+	// 권한 변경
 	Mutate(context.Context, *MutateRequest) (*MutateResponse, error)
 	// StreamCheck streams permission check in real-time
 	StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error
 	// 권한 목록 조회
-	List(context.Context, *ListRequest) (*ListResponse, error)
+	ListResources(context.Context, *ListResourcesRequest) (*ListResourcesResponse, error)
+	// 주체 목록 조회
+	ListSubjects(context.Context, *ListSubjectsRequest) (*ListSubjectsResponse, error)
 	// 감사 로그 조회
 	Audit(context.Context, *AuditRequest) (*AuditResponse, error)
 	mustEmbedUnimplementedAclGateServiceServer()
@@ -156,8 +173,11 @@ func (UnimplementedAclGateServiceServer) Mutate(context.Context, *MutateRequest)
 func (UnimplementedAclGateServiceServer) StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StreamCheck not implemented")
 }
-func (UnimplementedAclGateServiceServer) List(context.Context, *ListRequest) (*ListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+func (UnimplementedAclGateServiceServer) ListResources(context.Context, *ListResourcesRequest) (*ListResourcesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListResources not implemented")
+}
+func (UnimplementedAclGateServiceServer) ListSubjects(context.Context, *ListSubjectsRequest) (*ListSubjectsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListSubjects not implemented")
 }
 func (UnimplementedAclGateServiceServer) Audit(context.Context, *AuditRequest) (*AuditResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Audit not implemented")
@@ -244,20 +264,38 @@ func _AclGateService_StreamCheck_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AclGateService_StreamCheckServer = grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]
 
-func _AclGateService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListRequest)
+func _AclGateService_ListResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListResourcesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AclGateServiceServer).List(ctx, in)
+		return srv.(AclGateServiceServer).ListResources(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AclGateService_List_FullMethodName,
+		FullMethod: AclGateService_ListResources_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclGateServiceServer).List(ctx, req.(*ListRequest))
+		return srv.(AclGateServiceServer).ListResources(ctx, req.(*ListResourcesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AclGateService_ListSubjects_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSubjectsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AclGateServiceServer).ListSubjects(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AclGateService_ListSubjects_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AclGateServiceServer).ListSubjects(ctx, req.(*ListSubjectsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,8 +338,12 @@ var AclGateService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AclGateService_Mutate_Handler,
 		},
 		{
-			MethodName: "List",
-			Handler:    _AclGateService_List_Handler,
+			MethodName: "ListResources",
+			Handler:    _AclGateService_ListResources_Handler,
+		},
+		{
+			MethodName: "ListSubjects",
+			Handler:    _AclGateService_ListSubjects_Handler,
 		},
 		{
 			MethodName: "Audit",

@@ -111,7 +111,7 @@ func TestNewAclGateService(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, service)
-				assert.Implements(t, (*AclGateService)(nil), service)
+				assert.Implements(t, (*ClientService)(nil), service)
 			}
 		})
 	}
@@ -201,7 +201,7 @@ func TestAclGateService_Check(t *testing.T) {
 			}), mock.Anything).Return(tt.mockResponse, tt.mockError)
 
 			// Create service with mock client
-			service := &aclGateService{
+			service := &clientServiceImpl{
 				client: mockClient,
 			}
 
@@ -243,7 +243,7 @@ func TestAclGateService_Check_RequestValidation(t *testing.T) {
 		capturedRequest = args.Get(1).(*v1.CheckRequest)
 	})
 
-	service := &aclGateService{client: mockClient}
+	service := &clientServiceImpl{client: mockClient}
 
 	// Test parameters
 	resourceType := "document"
@@ -282,8 +282,8 @@ func TestAclGateService_Check_RequestValidation(t *testing.T) {
 }
 
 func TestAclGateService_InterfaceCompliance(t *testing.T) {
-	// Test that aclGateService implements AclGateService interface
-	var _ AclGateService = (*aclGateService)(nil)
+	// Test that clientServiceImpl implements ClientService interface
+	var _ ClientService = (*clientServiceImpl)(nil)
 }
 
 func TestAclGateService_ContextPropagation(t *testing.T) {
@@ -297,7 +297,7 @@ func TestAclGateService_ContextPropagation(t *testing.T) {
 		capturedContext = args.Get(0).(context.Context)
 	})
 
-	service := &aclGateService{client: mockClient}
+	service := &clientServiceImpl{client: mockClient}
 
 	// Create a context with a value
 	ctx := context.WithValue(context.Background(), "test-key", "test-value")
@@ -399,7 +399,7 @@ func TestAclGateService_BatchCheck(t *testing.T) {
 			mockClient := &MockAclGateServiceClient{}
 			mockClient.On("BatchCheck", mock.Anything, mock.Anything, mock.Anything).Return(tt.mockResponse, tt.mockError)
 
-			service := &aclGateService{client: mockClient}
+			service := &clientServiceImpl{client: mockClient}
 
 			result, err := service.BatchCheck(context.Background(), tt.requests)
 
@@ -472,7 +472,7 @@ func TestAclGateService_Mutate(t *testing.T) {
 			mockClient := &MockAclGateServiceClient{}
 			mockClient.On("Mutate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mockResponse, tt.mockError)
 
-			service := &aclGateService{client: mockClient}
+			service := &clientServiceImpl{client: mockClient}
 
 			result, err := service.Mutate(context.Background(), tt.writes, tt.deletes)
 
@@ -496,7 +496,7 @@ func TestAclGateService_StreamCheck(t *testing.T) {
 	mockStream := &MockBidiStreamingClient{}
 	mockClient.On("StreamCheck", mock.Anything, mock.Anything).Return(mockStream, nil)
 
-	service := &aclGateService{client: mockClient}
+	service := &clientServiceImpl{client: mockClient}
 
 	stream, err := service.StreamCheck(context.Background())
 
@@ -709,7 +709,7 @@ func TestAclGateService_Write(t *testing.T) {
 			mockClient := &MockAclGateServiceClient{}
 			mockClient.On("Mutate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mockResponse, tt.mockError)
 
-			service := &aclGateService{client: mockClient}
+			service := &clientServiceImpl{client: mockClient}
 
 			result, err := service.Write(context.Background(), tt.tuples)
 
@@ -771,7 +771,7 @@ func TestAclGateService_Delete(t *testing.T) {
 			mockClient := &MockAclGateServiceClient{}
 			mockClient.On("Mutate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mockResponse, tt.mockError)
 
-			service := &aclGateService{client: mockClient}
+			service := &clientServiceImpl{client: mockClient}
 
 			result, err := service.Delete(context.Background(), tt.tuples)
 
@@ -823,7 +823,7 @@ func TestAclGateService_DeleteResource(t *testing.T) {
 			mockClient := &MockAclGateServiceClient{}
 			mockClient.On("Mutate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mockResponse, tt.mockError)
 
-			service := &aclGateService{client: mockClient}
+			service := &clientServiceImpl{client: mockClient}
 
 			result, err := service.DeleteResource(context.Background(), tt.resourceType, tt.resourceId)
 
@@ -875,7 +875,7 @@ func TestAclGateService_DeleteSubject(t *testing.T) {
 			mockClient := &MockAclGateServiceClient{}
 			mockClient.On("Mutate", mock.Anything, mock.Anything, mock.Anything).Return(tt.mockResponse, tt.mockError)
 
-			service := &aclGateService{client: mockClient}
+			service := &clientServiceImpl{client: mockClient}
 
 			result, err := service.DeleteSubject(context.Background(), tt.subjectType, tt.subjectId)
 

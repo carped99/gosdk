@@ -8,8 +8,21 @@ import (
 	"google.golang.org/grpc"
 )
 
-// AclGateService defines the interface for ACL operations
-type AclGateService interface {
+// ClientService defines the interface for ACL operations
+type ClientService interface {
+
+	// CanCreate verifies if the given user can create the resource
+	CanCreate(ctx context.Context, resource Resource, subject Subject) (bool, error)
+
+	// CanRead verifying if the given user has the required permission
+	CanRead(ctx context.Context, resource Resource, subject Subject) (bool, error)
+
+	// CanWrite verifies if the given user can write to the resource
+	CanWrite(ctx context.Context, resource Resource, subject Subject) (bool, error)
+
+	// CanDelete verifies if the given user can delete the resource
+	CanDelete(ctx context.Context, resource Resource, subject Subject) (bool, error)
+
 	// Check verifying if the given user has the required permission
 	Check(ctx context.Context, req CheckRequest) (bool, error)
 
@@ -23,16 +36,19 @@ type AclGateService interface {
 	Delete(ctx context.Context, tuples []Tuple) (bool, error)
 
 	// DeleteResource removes all permissions for a specific resource
-	DeleteResource(ctx context.Context, resourceType, resourceId string) (bool, error)
+	DeleteResource(ctx context.Context, resource Resource) (bool, error)
 
 	// DeleteSubject removes all permissions for a specific subject
-	DeleteSubject(ctx context.Context, subjectType, subjectId string) (bool, error)
+	DeleteSubject(ctx context.Context, subject Subject) (bool, error)
 
 	// Mutate adds or removes permissions (advanced usage)
 	Mutate(ctx context.Context, writes, deletes []Tuple) (bool, error)
 
-	// List retrieves permissions based on filters
-	List(ctx context.Context, req ListRequest) (*ListResponse, error)
+	// ListResources retrieves resources based on filters
+	ListResources(ctx context.Context, req ListResourcesRequest) (*ListResourcesResponse, error)
+
+	// ListSubjects retrieves subjects based on filters
+	ListSubjects(ctx context.Context, req ListSubjectsRequest) (*ListSubjectsResponse, error)
 
 	// Audit retrieves audit logs based on filters
 	Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error)
@@ -58,13 +74,53 @@ type StreamCheckResponse struct {
 	Error   string
 }
 
-// aclGateService implements the AclGateService interface
-type aclGateService struct {
+// clientServiceImpl implements the ClientService interface
+type clientServiceImpl struct {
 	client v1.AclGateServiceClient
 }
 
+func (s *clientServiceImpl) CanCreate(ctx context.Context, resource Resource, subject Subject) (bool, error) {
+	return s.Check(ctx, CheckRequest{
+		Tuple: Tuple{
+			Resource: resource,
+			Subject:  subject,
+			Relation: NewRelation("can_create"),
+		},
+	})
+}
+
+func (s *clientServiceImpl) CanRead(ctx context.Context, resource Resource, subject Subject) (bool, error) {
+	return s.Check(ctx, CheckRequest{
+		Tuple: Tuple{
+			Resource: resource,
+			Subject:  subject,
+			Relation: NewRelation("can_read"),
+		},
+	})
+}
+
+func (s *clientServiceImpl) CanWrite(ctx context.Context, resource Resource, subject Subject) (bool, error) {
+	return s.Check(ctx, CheckRequest{
+		Tuple: Tuple{
+			Resource: resource,
+			Subject:  subject,
+			Relation: NewRelation("can_write"),
+		},
+	})
+}
+
+func (s *clientServiceImpl) CanDelete(ctx context.Context, resource Resource, subject Subject) (bool, error) {
+	return s.Check(ctx, CheckRequest{
+		Tuple: Tuple{
+			Resource: resource,
+			Subject:  subject,
+			Relation: NewRelation("can_delete"),
+		},
+	})
+}
+
 // Check verifying if the given user has the required permission
-func (s *aclGateService) Check(ctx context.Context, req CheckRequest) (bool, error) {
+func (s *clientServiceImpl) Check(ctx context.Context, req CheckRequest) (bool, error) {
 	protoReq := &v1.CheckRequest{Tuple: toProtoTuple(req.Tuple)}
 	resp, err := s.client.Check(ctx, protoReq)
 	if err != nil {
@@ -74,7 +130,7 @@ func (s *aclGateService) Check(ctx context.Context, req CheckRequest) (bool, err
 }
 
 // BatchCheck verifies multiple permissions at once
-func (s *aclGateService) BatchCheck(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error) {
+func (s *clientServiceImpl) BatchCheck(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error) {
 	if len(reqs) == 0 {
 		return []BatchCheckResult{}, nil
 	}
@@ -100,45 +156,35 @@ func (s *aclGateService) BatchCheck(ctx context.Context, reqs []CheckRequest) ([
 }
 
 // Write adds permissions
-func (s *aclGateService) Write(ctx context.Context, tuples []Tuple) (bool, error) {
+func (s *clientServiceImpl) Write(ctx context.Context, tuples []Tuple) (bool, error) {
 	return s.Mutate(ctx, tuples, nil)
 }
 
 // Delete removes permissions
-func (s *aclGateService) Delete(ctx context.Context, tuples []Tuple) (bool, error) {
+func (s *clientServiceImpl) Delete(ctx context.Context, tuples []Tuple) (bool, error) {
 	return s.Mutate(ctx, nil, tuples)
 }
 
 // DeleteResource removes all permissions for a specific resource
-func (s *aclGateService) DeleteResource(ctx context.Context, resourceType, resourceId string) (bool, error) {
-	// Create a wildcard tuple for the resource (empty subject and relation)
-	tuple := Tuple{
-		ResourceType: resourceType,
-		ResourceId:   resourceId,
-		SubjectType:  "", // wildcard - all subjects
-		SubjectId:    "", // wildcard - all subjects
-		Relation:     "", // wildcard - all relations
-	}
-
-	return s.Mutate(ctx, nil, []Tuple{tuple})
+func (s *clientServiceImpl) DeleteResource(ctx context.Context, resource Resource) (bool, error) {
+	return s.Mutate(ctx, nil, []Tuple{
+		{
+			Resource: resource,
+		},
+	})
 }
 
 // DeleteSubject removes all permissions for a specific subject
-func (s *aclGateService) DeleteSubject(ctx context.Context, subjectType, subjectId string) (bool, error) {
-	// Create a wildcard tuple for the subject (empty resource and relation)
-	tuple := Tuple{
-		ResourceType: "", // wildcard - all resources
-		ResourceId:   "", // wildcard - all resources
-		SubjectType:  subjectType,
-		SubjectId:    subjectId,
-		Relation:     "", // wildcard - all relations
-	}
-
-	return s.Mutate(ctx, nil, []Tuple{tuple})
+func (s *clientServiceImpl) DeleteSubject(ctx context.Context, subject Subject) (bool, error) {
+	return s.Mutate(ctx, nil, []Tuple{
+		{
+			Subject: subject,
+		},
+	})
 }
 
 // Mutate adds or removes permissions
-func (s *aclGateService) Mutate(ctx context.Context, writes, deletes []Tuple) (bool, error) {
+func (s *clientServiceImpl) Mutate(ctx context.Context, writes, deletes []Tuple) (bool, error) {
 	protoWrites := make([]*v1.Tuple, 0, len(writes))
 	for _, t := range writes {
 		protoWrites = append(protoWrites, toProtoTuple(t))
@@ -160,7 +206,7 @@ func (s *aclGateService) Mutate(ctx context.Context, writes, deletes []Tuple) (b
 }
 
 // StreamCheck streams permission checks in real-time
-func (s *aclGateService) StreamCheck(ctx context.Context) (StreamCheckClient, error) {
+func (s *clientServiceImpl) StreamCheck(ctx context.Context) (StreamCheckClient, error) {
 	stream, err := s.client.StreamCheck(ctx)
 	if err != nil {
 		return nil, err
@@ -200,31 +246,50 @@ func (c *streamCheckClient) Close() error {
 	return c.stream.CloseSend()
 }
 
-// List retrieves permissions based on filters
-func (s *aclGateService) List(ctx context.Context, req ListRequest) (*ListResponse, error) {
-	protoReq := &v1.ListRequest{
-		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
+// ListResources retrieves resources based on filters
+func (s *clientServiceImpl) ListResources(ctx context.Context, req ListResourcesRequest) (*ListResourcesResponse, error) {
+	protoReq := &v1.ListResourcesRequest{
+		Type:     req.Type,
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},
 		Relation: &v1.Relation{Name: req.Relation.Name},
-		Limit:    req.Limit,
-		Offset:   req.Offset,
 	}
 
-	resp, err := s.client.List(ctx, protoReq)
+	resp, err := s.client.ListResources(ctx, protoReq)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list permissions: %w", err)
+		return nil, fmt.Errorf("failed to list resources: %v, %w", req, err)
 	}
 
-	tuples := make([]Tuple, 0, len(resp.GetTuples()))
-	for _, t := range resp.GetTuples() {
-		tuples = append(tuples, toDomainTuple(t))
+	resources := make([]Resource, 0, len(resp.GetResources()))
+	for _, t := range resp.GetResources() {
+		resources = append(resources, NewResource(t.Type, t.Id))
 	}
 
-	return &ListResponse{Tuples: tuples}, nil
+	return &ListResourcesResponse{Resources: resources}, nil
+}
+
+// ListSubjects retrieves subjects based on filters
+func (s *clientServiceImpl) ListSubjects(ctx context.Context, req ListSubjectsRequest) (*ListSubjectsResponse, error) {
+	protoReq := &v1.ListSubjectsRequest{
+		Type:     req.Type,
+		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
+		Relation: &v1.Relation{Name: req.Relation.Name},
+	}
+
+	resp, err := s.client.ListSubjects(ctx, protoReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list subjects: %v, %w", req, err)
+	}
+
+	subjects := make([]Subject, 0, len(resp.GetSubjects()))
+	for _, t := range resp.GetSubjects() {
+		subjects = append(subjects, NewSubject(t.Type, t.Id))
+	}
+
+	return &ListSubjectsResponse{Subjects: subjects}, nil
 }
 
 // Audit retrieves audit logs based on filters
-func (s *aclGateService) Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error) {
+func (s *clientServiceImpl) Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error) {
 	protoReq := &v1.AuditRequest{
 		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},
@@ -253,9 +318,9 @@ func (s *aclGateService) Audit(ctx context.Context, req AuditRequest) (*AuditRes
 	return &AuditResponse{Logs: logs}, nil
 }
 
-func NewAclGateService(cc grpc.ClientConnInterface) (AclGateService, error) {
+func NewClientService(cc grpc.ClientConnInterface) (ClientService, error) {
 	client := v1.NewAclGateServiceClient(cc)
-	return &aclGateService{
+	return &clientServiceImpl{
 		client: client,
 	}, nil
 }

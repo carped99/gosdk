@@ -237,11 +237,12 @@ const file_aclgate_v1_schema_proto_rawDesc = "" +
 	"\x17aclgate/v1/schema.proto\x12\n" +
 	"aclgate.v1\x1a\x1bbuf/validate/validate.proto\"[\n" +
 	"\aSubject\x12)\n" +
-	"\x04type\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x04type\x12%\n" +
-	"\x02id\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x02id\"\\\n" +
-	"\bResource\x12)\n" +
-	"\x04type\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x04type\x12%\n" +
-	"\x02id\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x02id\"7\n" +
+	"\x04type\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,254}$R\x04type\x12%\n" +
+	"\x02id\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x02id\"[\n" +
+	"\bResource\x12,\n" +
+	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x12!\n" +
+	"\x02id\x18\x02 \x01(\tB\x11\xbaH\x0er\f2\n" +
+	"^[^#:\\s]+$R\x02id\"7\n" +
 	"\bRelation\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x17\xbaH\x14r\x122\x10^[^:#@\\s]{1,50}$R\x04name\"\xb2\x01\n" +
 	"\x05Tuple\x125\n" +
