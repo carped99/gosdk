@@ -32,21 +32,21 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 권한 확인 서비스
+// Permission Verification Service
 type AclGateServiceClient interface {
-	// 단건 권한 확인
+	// Single permission check
 	Check(ctx context.Context, in *CheckRequest, opts ...grpc.CallOption) (*CheckResponse, error)
-	// 다건 권한 확인
+	// Bulk permission check
 	BatchCheck(ctx context.Context, in *BatchCheckRequest, opts ...grpc.CallOption) (*BatchCheckResponse, error)
-	// 권한 변경
+	// Permission mutation (grant/revoke)
 	Mutate(ctx context.Context, in *MutateRequest, opts ...grpc.CallOption) (*MutateResponse, error)
-	// StreamCheck streams permission check in real-time
+	// Real-time permission check stream
 	StreamCheck(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamCheckRequest, StreamCheckResponse], error)
-	// 권한 목록 조회
+	// List resources accessible by a subject
 	ListResources(ctx context.Context, in *ListResourcesRequest, opts ...grpc.CallOption) (*ListResourcesResponse, error)
-	// 주체 목록 조회
+	// List subjects who have access to a resource
 	ListSubjects(ctx context.Context, in *ListSubjectsRequest, opts ...grpc.CallOption) (*ListSubjectsResponse, error)
-	// 감사 로그 조회
+	// Query audit logs
 	Audit(ctx context.Context, in *AuditRequest, opts ...grpc.CallOption) (*AuditResponse, error)
 }
 
@@ -135,21 +135,21 @@ func (c *aclGateServiceClient) Audit(ctx context.Context, in *AuditRequest, opts
 // All implementations must embed UnimplementedAclGateServiceServer
 // for forward compatibility.
 //
-// 권한 확인 서비스
+// Permission Verification Service
 type AclGateServiceServer interface {
-	// 단건 권한 확인
+	// Single permission check
 	Check(context.Context, *CheckRequest) (*CheckResponse, error)
-	// 다건 권한 확인
+	// Bulk permission check
 	BatchCheck(context.Context, *BatchCheckRequest) (*BatchCheckResponse, error)
-	// 권한 변경
+	// Permission mutation (grant/revoke)
 	Mutate(context.Context, *MutateRequest) (*MutateResponse, error)
-	// StreamCheck streams permission check in real-time
+	// Real-time permission check stream
 	StreamCheck(grpc.BidiStreamingServer[StreamCheckRequest, StreamCheckResponse]) error
-	// 권한 목록 조회
+	// List resources accessible by a subject
 	ListResources(context.Context, *ListResourcesRequest) (*ListResourcesResponse, error)
-	// 주체 목록 조회
+	// List subjects who have access to a resource
 	ListSubjects(context.Context, *ListSubjectsRequest) (*ListSubjectsResponse, error)
-	// 감사 로그 조회
+	// Query audit logs
 	Audit(context.Context, *AuditRequest) (*AuditResponse, error)
 	mustEmbedUnimplementedAclGateServiceServer()
 }

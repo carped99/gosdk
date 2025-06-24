@@ -3,17 +3,16 @@ syntax = "proto3";
 package aclgate.v1;
 
 option go_package = "aclgate/api/aclgate/v1;aclgatev1";
-option java_package = "carped99.aclgate.v1";
 
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "aclgate/v1/schema.proto";
 import "google/protobuf/timestamp.proto";
-import "protoc-gen-swagger/options/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 // Permission Verification Service
 service AclGateService {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_tag) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_tag) = {
     description: "Service for permission verification and management";
     external_docs: {
       url: "https://github.com/carped99/gosdk";
@@ -26,7 +25,7 @@ service AclGateService {
     option (google.api.http) = {
       get: "/acls/v1/check"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Single permission check";
       description: "Checks if a specific subject has a specific permission on a resource.\n\n## Example\n```\nGET /acls/v1/check?tuple.subject.type=user&tuple.subject.id=user123&tuple.resource.type=document&tuple.resource.id=doc123&tuple.relation.name=can_read\n```\n\n## Response Example\n```json\n{\n  \"allowed\": true,\n  \"reason\": \"User user123 has read permission on document doc123.\"\n}\n```";
       tags: ["Permission Management"];
@@ -41,17 +40,6 @@ service AclGateService {
           };
         };
       };
-      responses: {
-        key: "400";
-        value: {
-          description: "Bad Request";
-          schema: {
-            json_schema: {
-              ref: "#/definitions/rpcStatus";
-            };
-          };
-        };
-      };
     };
   }
 
@@ -61,7 +49,7 @@ service AclGateService {
       post: "/acls/v1/batch"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Bulk permission check";
       description: "Checks multiple permissions in a single request. Useful for batch operations.\n\n## Example\n```json\nPOST /acls/v1/batch\n{\n  \"items\": [\n    {\n      \"tuple\": {\n        \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n        \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n        \"relation\": {\"name\": \"can_read\"}\n      }\n    },\n    {\n      \"tuple\": {\n        \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n        \"resource\": {\"type\": \"document\", \"id\": \"doc456\"},\n        \"relation\": {\"name\": \"can_write\"}\n      }\n    }\n  ]\n}\n```";
       tags: ["Permission Management"];
@@ -85,7 +73,7 @@ service AclGateService {
       post: "/acls/v1/mutate"
       body: "*"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Permission mutation (grant/revoke)";
       description: "Grants, updates, or revokes permissions. Permissions in the 'writes' array are granted/updated, and those in 'deletes' are revoked.\n\n## Example\n```json\nPOST /acls/v1/mutate\n{\n  \"writes\": [\n    {\n      \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n      \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n      \"relation\": {\"name\": \"can_read\"}\n    }\n  ],\n  \"deletes\": [\n    {\n      \"subject\": {\"type\": \"user\", \"id\": \"user456\"},\n      \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n      \"relation\": {\"name\": \"can_write\"}\n    }\n  ]\n}\n```";
       tags: ["Permission Management"];
@@ -105,7 +93,7 @@ service AclGateService {
 
   // Real-time permission check stream
   rpc StreamCheck(stream StreamCheckRequest) returns (stream StreamCheckResponse) {
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Real-time permission check stream";
       description: "Streams permission changes in real-time. Notifies immediately when permissions change.";
       tags: ["Permission Management"];
@@ -117,7 +105,7 @@ service AclGateService {
     option (google.api.http) = {
       get: "/acls/v1/resources"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List accessible resources";
       description: "Lists all resources a subject can access with a specific relation.\n\n## Example\n```\nGET /acls/v1/resources?type=document&subject.type=user&subject.id=user123&relation.name=can_read\n```\n\n## Response Example\n```json\n{\n  \"resources\": [\n    {\"type\": \"document\", \"id\": \"doc123\"},\n    {\"type\": \"document\", \"id\": \"doc456\"}\n  ]\n}\n```";
       tags: ["Permission Management"];
@@ -140,7 +128,7 @@ service AclGateService {
     option (google.api.http) = {
       get: "/acls/v1/subjects"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List subjects with access";
       description: "Lists all subjects who can access a resource with a specific relation.\n\n## Example\n```\nGET /acls/v1/subjects?type=user&resource.type=document&resource.id=doc123&relation.name=can_read\n```\n\n## Response Example\n```json\n{\n  \"subjects\": [\n    {\"type\": \"user\", \"id\": \"user123\"},\n    {\"type\": \"group\", \"id\": \"admin-group\"}\n  ]\n}\n```";
       tags: ["Permission Management"];
@@ -163,7 +151,7 @@ service AclGateService {
     option (google.api.http) = {
       get: "/acls/v1/audit"
     };
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Query audit logs";
       description: "Queries the history of permission changes for security audit and compliance.\n\n## Example\n```\nGET /acls/v1/audit?resource.type=document&resource.id=doc123&pageSize=10\n```\n\n## Response Example\n```json\n{\n  \"logs\": [\n    {\n      \"id\": \"audit123\",\n      \"action\": \"WRITE\",\n      \"tuple\": {\n        \"subject\": {\"type\": \"user\", \"id\": \"admin\"},\n        \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n        \"relation\": {\"name\": \"can_read\"}\n      },\n      \"actor\": \"admin\",\n      \"timestamp\": \"2024-01-15T10:30:00Z\",\n      \"reason\": \"Granted new user permission\"\n    }\n  ]\n}\n```";
       tags: ["Audit Log"];
@@ -184,17 +172,16 @@ service AclGateService {
 
 // Single permission check request
 message CheckRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Single Permission Check Request";
       description: "Request for checking a single permission";
-      example: "{\"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}}";
     };
   };
   
   Tuple tuple = 1 [
     (buf.validate.field).required = true,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permission tuple to check";
       required: ["subject", "resource", "relation"];
     }
@@ -203,42 +190,38 @@ message CheckRequest {
 
 // Single permission check response
 message CheckResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Single Permission Check Response";
       description: "Result of single permission check";
-      example: "{\"allowed\": true, \"reason\": \"User user123 has read permission on document doc123.\"}";
     };
   };
   
   bool allowed = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Whether the permission is granted";
-      example: "true";
     }
   ];
   
   string reason = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Explanation of the permission check result";
-      example: "User user123 has read permission on document doc123.";
     }
   ];
 }
 
 // Bulk permission check request
 message BatchCheckRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Bulk Permission Check Request";
       description: "Request for checking multiple permissions";
-      example: "{\"items\": [{\"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}}]}";
     };
   };
   
   repeated CheckRequest items = 1 [
     (buf.validate.field).repeated.min_items = 1,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "List of permission check requests (min 1)";
       min_items: 1;
       max_items: 100;
@@ -248,16 +231,15 @@ message BatchCheckRequest {
 
 // Bulk permission check response
 message BatchCheckResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Bulk Permission Check Response";
       description: "Results of multiple permission checks";
-      example: "{\"results\": [{\"request\": {\"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}}, \"allowed\": true}]}";
     };
   };
   
   repeated BatchCheckResult results = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Result for each permission check request";
     }
   ];
@@ -265,136 +247,122 @@ message BatchCheckResponse {
 
 // Bulk permission check result item
 message BatchCheckResult {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Bulk Permission Check Result Item";
       description: "Result of an individual permission check";
-      example: "{\"request\": {\"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}}, \"allowed\": true}";
     };
   };
   
   CheckRequest request = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Original permission check request";
     }
   ];
   
   bool allowed = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Whether the permission is granted";
-      example: "true";
     }
   ];
 }
 
 // Permission mutation request
 message MutateRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Permission Mutation Request";
       description: "Request for granting, updating, or revoking permissions";
-      example: "{\"writes\": [{\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}], \"deletes\": []}";
     };
   };
   
   repeated Tuple writes = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permissions to grant or update";
-      example: "[{\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}]";
     }
   ];
   
   repeated Tuple deletes = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permissions to revoke";
-      example: "[{\"subject\": {\"type\": \"user\", \"id\": \"user456\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_write\"}}]";
     }
   ];
 }
 
 // Permission mutation response
 message MutateResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Permission Mutation Response";
       description: "Result of permission mutation operation";
-      example: "{\"success\": true}";
     };
   };
   
   bool success = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Whether the mutation was successful";
-      example: "true";
     }
   ];
 }
 
 // Real-time permission check request
 message StreamCheckRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Real-time Permission Check Request";
       description: "Request for real-time permission check";
-      example: "{\"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}, \"context\": {\"ip\": \"192.168.1.1\", \"user_agent\": \"Mozilla/5.0\"}}";
     };
   };
   
   Tuple tuple = 1 [
     (buf.validate.field).required = true,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permission tuple to check";
       required: ["subject", "resource", "relation"];
     }
   ];
   
   map<string, string> context = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Additional context information (IP, User-Agent, etc.)";
-      example: "{\"ip\": \"192.168.1.1\", \"user_agent\": \"Mozilla/5.0\"}";
     }
   ];
 }
 
 // Real-time permission check response
 message StreamCheckResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Real-time Permission Check Response";
       description: "Result of real-time permission check";
-      example: "{\"allowed\": true, \"reason\": \"Permission check succeeded\", \"error\": \"\"}";
     };
   };
   
   bool allowed = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Whether the permission is granted";
-      example: "true";
     }
   ];
   
   string reason = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Explanation of the permission check result";
-      example: "Permission check succeeded";
     }
   ];
   
   string error = 3 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Error message (if any)";
-      example: "";
     }
   ];
 }
 
 // Request for listing accessible resources
 message ListResourcesRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "List Resources Request";
       description: "Request to list resources accessible by a subject";
-      example: "{\"type\": \"document\", \"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"relation\": {\"name\": \"can_read\"}}";
     };
   };
   
@@ -402,16 +370,14 @@ message ListResourcesRequest {
     (buf.validate.field).string = {
       pattern : "^[^:#@\\s]{1,254}$",
     },
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Type of resource to query (optional)";
-      example: "document";
-      pattern: "^[^:#@\\s]{1,254}$";
     }
   ];
   
   Subject subject = 2 [
     (buf.validate.field).required = true,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Subject to query";
       required: ["type", "id"];
     }
@@ -419,7 +385,7 @@ message ListResourcesRequest {
   
   Relation relation = 3 [
     (buf.validate.field).required = true,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permission relation to query";
       required: ["name"];
     }
@@ -428,16 +394,15 @@ message ListResourcesRequest {
 
 // Response for listing accessible resources
 message ListResourcesResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "List Resources Response";
       description: "List of resources accessible by the subject";
-      example: "{\"resources\": [{\"type\": \"document\", \"id\": \"doc123\"}, {\"type\": \"document\", \"id\": \"doc456\"}]}";
     };
   };
   
   repeated Resource resources = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "List of accessible resources";
     }
   ];
@@ -445,11 +410,10 @@ message ListResourcesResponse {
 
 // Request for listing subjects with access
 message ListSubjectsRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "List Subjects Request";
       description: "Request to list subjects who have access to a resource";
-      example: "{\"type\": \"user\", \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}";
     };
   };
   
@@ -457,16 +421,14 @@ message ListSubjectsRequest {
     (buf.validate.field).string = {
       pattern : "^[^:#@\\s]{1,254}$",
     },
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Type of subject to query (optional)";
-      example: "user";
-      pattern: "^[^:#@\\s]{1,254}$";
     }
   ];
   
   Resource resource = 2 [
     (buf.validate.field).required = true,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Resource to query";
       required: ["type", "id"];
     }
@@ -474,7 +436,7 @@ message ListSubjectsRequest {
   
   Relation relation = 3 [
     (buf.validate.field).required = true,
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permission relation to query";
       required: ["name"];
     }
@@ -483,16 +445,15 @@ message ListSubjectsRequest {
 
 // Response for listing subjects with access
 message ListSubjectsResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "List Subjects Response";
       description: "List of subjects who have access to the resource";
-      example: "{\"subjects\": [{\"type\": \"user\", \"id\": \"user123\"}, {\"type\": \"group\", \"id\": \"admin-group\"}]}";
     };
   };
   
   repeated Subject subjects = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "List of subjects with access";
     }
   ];
@@ -500,116 +461,103 @@ message ListSubjectsResponse {
 
 // Request for querying audit logs
 message AuditRequest {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Audit Log Query Request";
       description: "Request to query permission change history";
-      example: "{\"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"pageSize\": 10, \"cursor\": \"next-page-token\"}";
     };
   };
   
   Resource resource = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Resource to query (optional)";
-      example: "{\"type\": \"document\", \"id\": \"doc123\"}";
     }
   ];
   
   Subject subject = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Subject to query (optional)";
-      example: "{\"type\": \"user\", \"id\": \"user123\"}";
     }
   ];
   
   Relation relation = 3 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permission relation to query (optional)";
-      example: "{\"name\": \"can_read\"}";
     }
   ];
   
-  int32 pageSize = 4 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
-      description: "Page size (default: 20, max: 100)";
-      example: "10";
+  int32 size = 4 [
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+      description: "Page size (default: 20, max: 1000)";
       minimum: 1;
-      maximum: 100;
+      maximum: 1000;
     }
   ];
   
   string cursor = 5 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Pagination cursor";
-      example: "next-page-token";
     }
   ];
 }
 
 // Audit log entry
 message AuditLog {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Audit Log Entry";
       description: "Entry for permission change history";
-      example: "{\"id\": \"audit123\", \"action\": \"WRITE\", \"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"admin\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}, \"actor\": \"admin\", \"timestamp\": \"2024-01-15T10:30:00Z\", \"reason\": \"Granted new user permission\"}";
     };
   };
   
   string id = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Unique identifier for the audit log entry";
-      example: "audit123";
     }
   ];
   
   string action = 2 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Action performed (WRITE, DELETE, UPDATE, etc.)";
-      example: "WRITE";
     }
   ];
   
   Tuple tuple = 3 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Permission tuple that was changed";
     }
   ];
   
   string actor = 4 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Subject who performed the change";
-      example: "admin";
     }
   ];
   
   google.protobuf.Timestamp timestamp = 5 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Time of the permission change";
-      example: "2024-01-15T10:30:00Z";
     }
   ];
   
   string reason = 6 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Reason for the permission change";
-      example: "Granted new user permission";
     }
   ];
 }
 
 // Response for audit log query
 message AuditResponse {
-  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
     json_schema: {
       title: "Audit Log Query Response";
       description: "List of audit log entries";
-      example: "{\"logs\": [{\"id\": \"audit123\", \"action\": \"WRITE\", \"tuple\": {\"subject\": {\"type\": \"user\", \"id\": \"admin\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}, \"actor\": \"admin\", \"timestamp\": \"2024-01-15T10:30:00Z\", \"reason\": \"Granted new user permission\"}]}";
     };
   };
   
   repeated AuditLog logs = 1 [
-    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+    (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "List of audit log entries";
     }
   ];

@@ -1886,9 +1886,9 @@ func (m *AuditRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for Limit
+	// no validation rules for PageSize
 
-	// no validation rules for Offset
+	// no validation rules for Cursor
 
 	if len(errors) > 0 {
 		return AuditRequestMultiError(errors)

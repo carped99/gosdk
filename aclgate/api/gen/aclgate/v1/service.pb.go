@@ -8,6 +8,7 @@ package aclgatev1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,7 +25,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 단건 요청
+// Single permission check request
 type CheckRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tuple         *Tuple                 `protobuf:"bytes,1,opt,name=tuple,proto3" json:"tuple,omitempty"`
@@ -69,7 +70,7 @@ func (x *CheckRequest) GetTuple() *Tuple {
 	return nil
 }
 
-// 단건 응답
+// Single permission check response
 type CheckResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Allowed       bool                   `protobuf:"varint,1,opt,name=allowed,proto3" json:"allowed,omitempty"`
@@ -122,7 +123,7 @@ func (x *CheckResponse) GetReason() string {
 	return ""
 }
 
-// 다건 요청
+// Bulk permission check request
 type BatchCheckRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Items         []*CheckRequest        `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
@@ -167,7 +168,7 @@ func (x *BatchCheckRequest) GetItems() []*CheckRequest {
 	return nil
 }
 
-// 다건 응답
+// Bulk permission check response
 type BatchCheckResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Results       []*BatchCheckResult    `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
@@ -212,7 +213,7 @@ func (x *BatchCheckResponse) GetResults() []*BatchCheckResult {
 	return nil
 }
 
-// 다건 응답 결과 항목
+// Bulk permission check result item
 type BatchCheckResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Request       *CheckRequest          `protobuf:"bytes,1,opt,name=request,proto3" json:"request,omitempty"`
@@ -265,6 +266,7 @@ func (x *BatchCheckResult) GetAllowed() bool {
 	return false
 }
 
+// Permission mutation request
 type MutateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Writes        []*Tuple               `protobuf:"bytes,1,rep,name=writes,proto3" json:"writes,omitempty"`
@@ -317,6 +319,7 @@ func (x *MutateRequest) GetDeletes() []*Tuple {
 	return nil
 }
 
+// Permission mutation response
 type MutateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
@@ -361,7 +364,7 @@ func (x *MutateResponse) GetSuccess() bool {
 	return false
 }
 
-// CheckPermissionRequest represents a permission check request
+// Real-time permission check request
 type StreamCheckRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tuple         *Tuple                 `protobuf:"bytes,1,opt,name=tuple,proto3" json:"tuple,omitempty"`
@@ -414,7 +417,7 @@ func (x *StreamCheckRequest) GetContext() map[string]string {
 	return nil
 }
 
-// PermissionChange represents a single permission change event
+// Real-time permission check response
 type StreamCheckResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Allowed       bool                   `protobuf:"varint,1,opt,name=allowed,proto3" json:"allowed,omitempty"`
@@ -475,7 +478,7 @@ func (x *StreamCheckResponse) GetError() string {
 	return ""
 }
 
-// 권한 목록 조회 요청
+// Request for listing accessible resources
 type ListResourcesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -536,7 +539,7 @@ func (x *ListResourcesRequest) GetRelation() *Relation {
 	return nil
 }
 
-// 권한 목록 조회 응답
+// Response for listing accessible resources
 type ListResourcesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Resources     []*Resource            `protobuf:"bytes,1,rep,name=resources,proto3" json:"resources,omitempty"`
@@ -581,7 +584,7 @@ func (x *ListResourcesResponse) GetResources() []*Resource {
 	return nil
 }
 
-// 권한 목록 조회 요청
+// Request for listing subjects with access
 type ListSubjectsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -642,7 +645,7 @@ func (x *ListSubjectsRequest) GetRelation() *Relation {
 	return nil
 }
 
-// 권한 목록 조회 응답
+// Response for listing subjects with access
 type ListSubjectsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Subjects      []*Subject             `protobuf:"bytes,1,rep,name=subjects,proto3" json:"subjects,omitempty"`
@@ -687,14 +690,14 @@ func (x *ListSubjectsResponse) GetSubjects() []*Subject {
 	return nil
 }
 
-// 감사 로그 조회 요청
+// Request for querying audit logs
 type AuditRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Resource      *Resource              `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
 	Subject       *Subject               `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
 	Relation      *Relation              `protobuf:"bytes,3,opt,name=relation,proto3" json:"relation,omitempty"`
-	Limit         int32                  `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
-	Offset        int32                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`
+	PageSize      int32                  `protobuf:"varint,4,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	Cursor        string                 `protobuf:"bytes,5,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -750,25 +753,25 @@ func (x *AuditRequest) GetRelation() *Relation {
 	return nil
 }
 
-func (x *AuditRequest) GetLimit() int32 {
+func (x *AuditRequest) GetPageSize() int32 {
 	if x != nil {
-		return x.Limit
+		return x.PageSize
 	}
 	return 0
 }
 
-func (x *AuditRequest) GetOffset() int32 {
+func (x *AuditRequest) GetCursor() string {
 	if x != nil {
-		return x.Offset
+		return x.Cursor
 	}
-	return 0
+	return ""
 }
 
-// 감사 로그
+// Audit log entry
 type AuditLog struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"` // 예: WRITE, DELETE
+	Action        string                 `protobuf:"bytes,2,opt,name=action,proto3" json:"action,omitempty"`
 	Tuple         *Tuple                 `protobuf:"bytes,3,opt,name=tuple,proto3" json:"tuple,omitempty"`
 	Actor         string                 `protobuf:"bytes,4,opt,name=actor,proto3" json:"actor,omitempty"`
 	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
@@ -849,7 +852,7 @@ func (x *AuditLog) GetReason() string {
 	return ""
 }
 
-// 감사 로그 목록 응답
+// Response for audit log query
 type AuditResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Logs          []*AuditLog            `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
@@ -899,70 +902,224 @@ var File_aclgate_v1_service_proto protoreflect.FileDescriptor
 const file_aclgate_v1_service_proto_rawDesc = "" +
 	"\n" +
 	"\x18aclgate/v1/service.proto\x12\n" +
-	"aclgate.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17aclgate/v1/schema.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"?\n" +
-	"\fCheckRequest\x12/\n" +
-	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleB\x06\xbaH\x03\xc8\x01\x01R\x05tuple\"A\n" +
-	"\rCheckResponse\x12\x18\n" +
-	"\aallowed\x18\x01 \x01(\bR\aallowed\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason\"M\n" +
-	"\x11BatchCheckRequest\x128\n" +
-	"\x05items\x18\x01 \x03(\v2\x18.aclgate.v1.CheckRequestB\b\xbaH\x05\x92\x01\x02\b\x01R\x05items\"L\n" +
-	"\x12BatchCheckResponse\x126\n" +
-	"\aresults\x18\x01 \x03(\v2\x1c.aclgate.v1.BatchCheckResultR\aresults\"`\n" +
-	"\x10BatchCheckResult\x122\n" +
-	"\arequest\x18\x01 \x01(\v2\x18.aclgate.v1.CheckRequestR\arequest\x12\x18\n" +
-	"\aallowed\x18\x02 \x01(\bR\aallowed\"g\n" +
-	"\rMutateRequest\x12)\n" +
-	"\x06writes\x18\x01 \x03(\v2\x11.aclgate.v1.TupleR\x06writes\x12+\n" +
-	"\adeletes\x18\x02 \x03(\v2\x11.aclgate.v1.TupleR\adeletes\"*\n" +
-	"\x0eMutateResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"\xc8\x01\n" +
-	"\x12StreamCheckRequest\x12/\n" +
-	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleB\x06\xbaH\x03\xc8\x01\x01R\x05tuple\x12E\n" +
-	"\acontext\x18\x02 \x03(\v2+.aclgate.v1.StreamCheckRequest.ContextEntryR\acontext\x1a:\n" +
+	"aclgate.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x17aclgate/v1/schema.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xcf\x01\n" +
+	"\fCheckRequest\x12m\n" +
+	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleBD\x92A;2\x19Permission tuple to check\xd2\x01\asubject\xd2\x01\bresource\xd2\x01\brelation\xbaH\x03\xc8\x01\x01R\x05tuple:P\x92AM\n" +
+	"K*\x1fSingle Permission Check Request2(Request for checking a single permission\"\xe6\x01\n" +
+	"\rCheckResponse\x12@\n" +
+	"\aallowed\x18\x01 \x01(\bB&\x92A#2!Whether the permission is grantedR\aallowed\x12G\n" +
+	"\x06reason\x18\x02 \x01(\tB/\x92A,2*Explanation of the permission check resultR\x06reason:J\x92AG\n" +
+	"E* Single Permission Check Response2!Result of single permission check\"\xd2\x01\n" +
+	"\x11BatchCheckRequest\x12l\n" +
+	"\x05items\x18\x01 \x03(\v2\x18.aclgate.v1.CheckRequestB<\x92A12)List of permission check requests (min 1)\xa0\x01d\xa8\x01\x01\xbaH\x05\x92\x01\x02\b\x01R\x05items:O\x92AL\n" +
+	"J*\x1dBulk Permission Check Request2)Request for checking multiple permissions\"\xc9\x01\n" +
+	"\x12BatchCheckResponse\x12e\n" +
+	"\aresults\x18\x01 \x03(\v2\x1c.aclgate.v1.BatchCheckResultB-\x92A*2(Result for each permission check requestR\aresults:L\x92AI\n" +
+	"G*\x1eBulk Permission Check Response2%Results of multiple permission checks\"\x84\x02\n" +
+	"\x10BatchCheckResult\x12Z\n" +
+	"\arequest\x18\x01 \x01(\v2\x18.aclgate.v1.CheckRequestB&\x92A#2!Original permission check requestR\arequest\x12@\n" +
+	"\aallowed\x18\x02 \x01(\bB&\x92A#2!Whether the permission is grantedR\aallowed:R\x92AO\n" +
+	"M*!Bulk Permission Check Result Item2(Result of an individual permission check\"\x85\x02\n" +
+	"\rMutateRequest\x12N\n" +
+	"\x06writes\x18\x01 \x03(\v2\x11.aclgate.v1.TupleB#\x92A 2\x1ePermissions to grant or updateR\x06writes\x12G\n" +
+	"\adeletes\x18\x02 \x03(\v2\x11.aclgate.v1.TupleB\x1a\x92A\x172\x15Permissions to revokeR\adeletes:[\x92AX\n" +
+	"V*\x1bPermission Mutation Request27Request for granting, updating, or revoking permissions\"\xa2\x01\n" +
+	"\x0eMutateResponse\x12B\n" +
+	"\asuccess\x18\x01 \x01(\bB(\x92A%2#Whether the mutation was successfulR\asuccess:L\x92AI\n" +
+	"G*\x1cPermission Mutation Response2'Result of permission mutation operation\"\x96\x03\n" +
+	"\x12StreamCheckRequest\x12m\n" +
+	"\x05tuple\x18\x01 \x01(\v2\x11.aclgate.v1.TupleBD\x92A;2\x19Permission tuple to check\xd2\x01\asubject\xd2\x01\bresource\xd2\x01\brelation\xbaH\x03\xc8\x01\x01R\x05tuple\x12\x81\x01\n" +
+	"\acontext\x18\x02 \x03(\v2+.aclgate.v1.StreamCheckRequest.ContextEntryB:\x92A725Additional context information (IP, User-Agent, etc.)R\acontext\x1a:\n" +
 	"\fContextEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"]\n" +
-	"\x13StreamCheckResponse\x12\x18\n" +
-	"\aallowed\x18\x01 \x01(\bR\aallowed\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error\"\xb5\x01\n" +
-	"\x14ListResourcesRequest\x12,\n" +
-	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x125\n" +
-	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectB\x06\xbaH\x03\xc8\x01\x01R\asubject\x128\n" +
-	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB\x06\xbaH\x03\xc8\x01\x01R\brelation\"K\n" +
-	"\x15ListResourcesResponse\x122\n" +
-	"\tresources\x18\x01 \x03(\v2\x14.aclgate.v1.ResourceR\tresources\"\xb7\x01\n" +
-	"\x13ListSubjectsRequest\x12,\n" +
-	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x128\n" +
-	"\bresource\x18\x02 \x01(\v2\x14.aclgate.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
-	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB\x06\xbaH\x03\xc8\x01\x01R\brelation\"G\n" +
-	"\x14ListSubjectsResponse\x12/\n" +
-	"\bsubjects\x18\x01 \x03(\v2\x13.aclgate.v1.SubjectR\bsubjects\"\xcf\x01\n" +
-	"\fAuditRequest\x120\n" +
-	"\bresource\x18\x01 \x01(\v2\x14.aclgate.v1.ResourceR\bresource\x12-\n" +
-	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectR\asubject\x120\n" +
-	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationR\brelation\x12\x14\n" +
-	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x16\n" +
-	"\x06offset\x18\x05 \x01(\x05R\x06offset\"\xc3\x01\n" +
-	"\bAuditLog\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
-	"\x06action\x18\x02 \x01(\tR\x06action\x12'\n" +
-	"\x05tuple\x18\x03 \x01(\v2\x11.aclgate.v1.TupleR\x05tuple\x12\x14\n" +
-	"\x05actor\x18\x04 \x01(\tR\x05actor\x128\n" +
-	"\ttimestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x16\n" +
-	"\x06reason\x18\x06 \x01(\tR\x06reason\"9\n" +
-	"\rAuditResponse\x12(\n" +
-	"\x04logs\x18\x01 \x03(\v2\x14.aclgate.v1.AuditLogR\x04logs2\xb5\x05\n" +
-	"\x0eAclGateService\x12T\n" +
-	"\x05Check\x12\x18.aclgate.v1.CheckRequest\x1a\x19.aclgate.v1.CheckResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/acls/v1/check\x12f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:Q\x92AN\n" +
+	"L*\"Real-time Permission Check Request2&Request for real-time permission check\"\xa5\x02\n" +
+	"\x13StreamCheckResponse\x12@\n" +
+	"\aallowed\x18\x01 \x01(\bB&\x92A#2!Whether the permission is grantedR\aallowed\x12G\n" +
+	"\x06reason\x18\x02 \x01(\tB/\x92A,2*Explanation of the permission check resultR\x06reason\x121\n" +
+	"\x05error\x18\x03 \x01(\tB\x1b\x92A\x182\x16Error message (if any)R\x05error:P\x92AM\n" +
+	"K*#Real-time Permission Check Response2$Result of real-time permission check\"\xf9\x02\n" +
+	"\x14ListResourcesRequest\x12U\n" +
+	"\x04type\x18\x01 \x01(\tBA\x92A&2$Type of resource to query (optional)\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x12V\n" +
+	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectB'\x92A\x1e2\x10Subject to query\xd2\x01\x04type\xd2\x01\x02id\xbaH\x03\xc8\x01\x01R\asubject\x12`\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB.\x92A%2\x1cPermission relation to query\xd2\x01\x04name\xbaH\x03\xc8\x01\x01R\brelation:P\x92AM\n" +
+	"K*\x16List Resources Request21Request to list resources accessible by a subject\"\xbb\x01\n" +
+	"\x15ListResourcesResponse\x12U\n" +
+	"\tresources\x18\x01 \x03(\v2\x14.aclgate.v1.ResourceB!\x92A\x1e2\x1cList of accessible resourcesR\tresources:K\x92AH\n" +
+	"F*\x17List Resources Response2+List of resources accessible by the subject\"\xff\x02\n" +
+	"\x13ListSubjectsRequest\x12T\n" +
+	"\x04type\x18\x01 \x01(\tB@\x92A%2#Type of subject to query (optional)\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x12Z\n" +
+	"\bresource\x18\x02 \x01(\v2\x14.aclgate.v1.ResourceB(\x92A\x1f2\x11Resource to query\xd2\x01\x04type\xd2\x01\x02id\xbaH\x03\xc8\x01\x01R\bresource\x12`\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB.\x92A%2\x1cPermission relation to query\xd2\x01\x04name\xbaH\x03\xc8\x01\x01R\brelation:T\x92AQ\n" +
+	"O*\x15List Subjects Request26Request to list subjects who have access to a resource\"\xbb\x01\n" +
+	"\x14ListSubjectsResponse\x12R\n" +
+	"\bsubjects\x18\x01 \x03(\v2\x13.aclgate.v1.SubjectB!\x92A\x1e2\x1cList of subjects with accessR\bsubjects:O\x92AL\n" +
+	"J*\x16List Subjects Response20List of subjects who have access to the resource\"\xe7\x03\n" +
+	"\fAuditRequest\x12S\n" +
+	"\bresource\x18\x01 \x01(\v2\x14.aclgate.v1.ResourceB!\x92A\x1e2\x1cResource to query (optional)R\bresource\x12O\n" +
+	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectB \x92A\x1d2\x1bSubject to query (optional)R\asubject\x12^\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB,\x92A)2'Permission relation to query (optional)R\brelation\x12U\n" +
+	"\bpageSize\x18\x04 \x01(\x05B9\x92A62\"Page size (default: 20, max: 1000)Y\x00\x00\x00\x00\x00@\x8f@i\x00\x00\x00\x00\x00\x00\xf0?R\bpageSize\x12.\n" +
+	"\x06cursor\x18\x05 \x01(\tB\x16\x92A\x132\x11Pagination cursorR\x06cursor:J\x92AG\n" +
+	"E*\x17Audit Log Query Request2*Request to query permission change history\"\xff\x03\n" +
+	"\bAuditLog\x12>\n" +
+	"\x02id\x18\x01 \x01(\tB.\x92A+2)Unique identifier for the audit log entryR\x02id\x12K\n" +
+	"\x06action\x18\x02 \x01(\tB3\x92A02.Action performed (WRITE, DELETE, UPDATE, etc.)R\x06action\x12O\n" +
+	"\x05tuple\x18\x03 \x01(\v2\x11.aclgate.v1.TupleB&\x92A#2!Permission tuple that was changedR\x05tuple\x12;\n" +
+	"\x05actor\x18\x04 \x01(\tB%\x92A\"2 Subject who performed the changeR\x05actor\x12\\\n" +
+	"\ttimestamp\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\"\x92A\x1f2\x1dTime of the permission changeR\ttimestamp\x12=\n" +
+	"\x06reason\x18\x06 \x01(\tB%\x92A\"2 Reason for the permission changeR\x06reason:;\x92A8\n" +
+	"6*\x0fAudit Log Entry2#Entry for permission change history\"\x95\x01\n" +
+	"\rAuditResponse\x12H\n" +
+	"\x04logs\x18\x01 \x03(\v2\x14.aclgate.v1.AuditLogB\x1e\x92A\x1b2\x19List of audit log entriesR\x04logs::\x92A7\n" +
+	"5*\x18Audit Log Query Response2\x19List of audit log entries2\xac\"\n" +
+	"\x0eAclGateService\x12\xbf\x04\n" +
+	"\x05Check\x12\x18.aclgate.v1.CheckRequest\x1a\x19.aclgate.v1.CheckResponse\"\x80\x04\x92A\xe6\x03\n" +
+	"\x15Permission Management\x12\x17Single permission check\x1a\xeb\x02Checks if a specific subject has a specific permission on a resource.\n" +
 	"\n" +
-	"BatchCheck\x12\x1d.aclgate.v1.BatchCheckRequest\x1a\x1e.aclgate.v1.BatchCheckResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/batch\x12[\n" +
-	"\x06Mutate\x12\x19.aclgate.v1.MutateRequest\x1a\x1a.aclgate.v1.MutateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/mutate\x12R\n" +
-	"\vStreamCheck\x12\x1e.aclgate.v1.StreamCheckRequest\x1a\x1f.aclgate.v1.StreamCheckResponse(\x010\x01\x12p\n" +
-	"\rListResources\x12 .aclgate.v1.ListResourcesRequest\x1a!.aclgate.v1.ListResourcesResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/acls/v1/resources\x12l\n" +
-	"\fListSubjects\x12\x1f.aclgate.v1.ListSubjectsRequest\x1a .aclgate.v1.ListSubjectsResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/acls/v1/subjects\x12T\n" +
-	"\x05Audit\x12\x18.aclgate.v1.AuditRequest\x1a\x19.aclgate.v1.AuditResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/acls/v1/auditB\x89\x01\n" +
+	"## Example\n" +
+	"```\n" +
+	"GET /acls/v1/check?tuple.subject.type=user&tuple.subject.id=user123&tuple.resource.type=document&tuple.resource.id=doc123&tuple.relation.name=can_read\n" +
+	"```\n" +
+	"\n" +
+	"## Response Example\n" +
+	"```json\n" +
+	"{\n" +
+	"  \"allowed\": true,\n" +
+	"  \"reason\": \"User user123 has read permission on document doc123.\"\n" +
+	"}\n" +
+	"```JF\n" +
+	"\x03200\x12?\n" +
+	"\x1aPermission check succeeded\x12!\n" +
+	"\x1f\x1a\x1d#/definitions/v1CheckResponse\x82\xd3\xe4\x93\x02\x10\x12\x0e/acls/v1/check\x12\xfa\x05\n" +
+	"\n" +
+	"BatchCheck\x12\x1d.aclgate.v1.BatchCheckRequest\x1a\x1e.aclgate.v1.BatchCheckResponse\"\xac\x05\x92A\x8f\x05\n" +
+	"\x15Permission Management\x12\x15Bulk permission check\x1a\x8c\x04Checks multiple permissions in a single request. Useful for batch operations.\n" +
+	"\n" +
+	"## Example\n" +
+	"```json\n" +
+	"POST /acls/v1/batch\n" +
+	"{\n" +
+	"  \"items\": [\n" +
+	"    {\n" +
+	"      \"tuple\": {\n" +
+	"        \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n" +
+	"        \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n" +
+	"        \"relation\": {\"name\": \"can_read\"}\n" +
+	"      }\n" +
+	"    },\n" +
+	"    {\n" +
+	"      \"tuple\": {\n" +
+	"        \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n" +
+	"        \"resource\": {\"type\": \"document\", \"id\": \"doc456\"},\n" +
+	"        \"relation\": {\"name\": \"can_write\"}\n" +
+	"      }\n" +
+	"    }\n" +
+	"  ]\n" +
+	"}\n" +
+	"```JP\n" +
+	"\x03200\x12I\n" +
+	"\x1fBulk permission check succeeded\x12&\n" +
+	"$\x1a\"#/definitions/v1BatchCheckResponse\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/acls/v1/batch\x12\x83\x06\n" +
+	"\x06Mutate\x12\x19.aclgate.v1.MutateRequest\x1a\x1a.aclgate.v1.MutateResponse\"\xc1\x05\x92A\xa3\x05\n" +
+	"\x15Permission Management\x12\"Permission mutation (grant/revoke)\x1a\x99\x04Grants, updates, or revokes permissions. Permissions in the 'writes' array are granted/updated, and those in 'deletes' are revoked.\n" +
+	"\n" +
+	"## Example\n" +
+	"```json\n" +
+	"POST /acls/v1/mutate\n" +
+	"{\n" +
+	"  \"writes\": [\n" +
+	"    {\n" +
+	"      \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n" +
+	"      \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n" +
+	"      \"relation\": {\"name\": \"can_read\"}\n" +
+	"    }\n" +
+	"  ],\n" +
+	"  \"deletes\": [\n" +
+	"    {\n" +
+	"      \"subject\": {\"type\": \"user\", \"id\": \"user456\"},\n" +
+	"      \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n" +
+	"      \"relation\": {\"name\": \"can_write\"}\n" +
+	"    }\n" +
+	"  ]\n" +
+	"}\n" +
+	"```JJ\n" +
+	"\x03200\x12C\n" +
+	"\x1dPermission mutation succeeded\x12\"\n" +
+	" \x1a\x1e#/definitions/v1MutateResponse\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/acls/v1/mutate\x12\xeb\x01\n" +
+	"\vStreamCheck\x12\x1e.aclgate.v1.StreamCheckRequest\x1a\x1f.aclgate.v1.StreamCheckResponse\"\x96\x01\x92A\x92\x01\n" +
+	"\x15Permission Management\x12!Real-time permission check stream\x1aVStreams permission changes in real-time. Notifies immediately when permissions change.(\x010\x01\x12\xbb\x04\n" +
+	"\rListResources\x12 .aclgate.v1.ListResourcesRequest\x1a!.aclgate.v1.ListResourcesResponse\"\xe4\x03\x92A\xc6\x03\n" +
+	"\x15Permission Management\x12\x19List accessible resources\x1a\xc4\x02Lists all resources a subject can access with a specific relation.\n" +
+	"\n" +
+	"## Example\n" +
+	"```\n" +
+	"GET /acls/v1/resources?type=document&subject.type=user&subject.id=user123&relation.name=can_read\n" +
+	"```\n" +
+	"\n" +
+	"## Response Example\n" +
+	"```json\n" +
+	"{\n" +
+	"  \"resources\": [\n" +
+	"    {\"type\": \"document\", \"id\": \"doc123\"},\n" +
+	"    {\"type\": \"document\", \"id\": \"doc456\"}\n" +
+	"  ]\n" +
+	"}\n" +
+	"```JK\n" +
+	"\x03200\x12D\n" +
+	"\x17Resource list succeeded\x12)\n" +
+	"'\x1a%#/definitions/v1ListResourcesResponse\x82\xd3\xe4\x93\x02\x14\x12\x12/acls/v1/resources\x12\xb7\x04\n" +
+	"\fListSubjects\x12\x1f.aclgate.v1.ListSubjectsRequest\x1a .aclgate.v1.ListSubjectsResponse\"\xe3\x03\x92A\xc6\x03\n" +
+	"\x15Permission Management\x12\x19List subjects with access\x1a\xc6\x02Lists all subjects who can access a resource with a specific relation.\n" +
+	"\n" +
+	"## Example\n" +
+	"```\n" +
+	"GET /acls/v1/subjects?type=user&resource.type=document&resource.id=doc123&relation.name=can_read\n" +
+	"```\n" +
+	"\n" +
+	"## Response Example\n" +
+	"```json\n" +
+	"{\n" +
+	"  \"subjects\": [\n" +
+	"    {\"type\": \"user\", \"id\": \"user123\"},\n" +
+	"    {\"type\": \"group\", \"id\": \"admin-group\"}\n" +
+	"  ]\n" +
+	"}\n" +
+	"```JI\n" +
+	"\x03200\x12B\n" +
+	"\x16Subject list succeeded\x12(\n" +
+	"&\x1a$#/definitions/v1ListSubjectsResponse\x82\xd3\xe4\x93\x02\x13\x12\x11/acls/v1/subjects\x12\xfd\x05\n" +
+	"\x05Audit\x12\x18.aclgate.v1.AuditRequest\x1a\x19.aclgate.v1.AuditResponse\"\xbe\x05\x92A\xa4\x05\n" +
+	"\tAudit Log\x12\x10Query audit logs\x1a\xbd\x04Queries the history of permission changes for security audit and compliance.\n" +
+	"\n" +
+	"## Example\n" +
+	"```\n" +
+	"GET /acls/v1/audit?resource.type=document&resource.id=doc123&pageSize=10\n" +
+	"```\n" +
+	"\n" +
+	"## Response Example\n" +
+	"```json\n" +
+	"{\n" +
+	"  \"logs\": [\n" +
+	"    {\n" +
+	"      \"id\": \"audit123\",\n" +
+	"      \"action\": \"WRITE\",\n" +
+	"      \"tuple\": {\n" +
+	"        \"subject\": {\"type\": \"user\", \"id\": \"admin\"},\n" +
+	"        \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n" +
+	"        \"relation\": {\"name\": \"can_read\"}\n" +
+	"      },\n" +
+	"      \"actor\": \"admin\",\n" +
+	"      \"timestamp\": \"2024-01-15T10:30:00Z\",\n" +
+	"      \"reason\": \"Granted new user permission\"\n" +
+	"    }\n" +
+	"  ]\n" +
+	"}\n" +
+	"```JE\n" +
+	"\x03200\x12>\n" +
+	"\x19Audit log query succeeded\x12!\n" +
+	"\x1f\x1a\x1d#/definitions/v1AuditResponse\x82\xd3\xe4\x93\x02\x10\x12\x0e/acls/v1/audit\x1ao\x92Al\x122Service for permission verification and management\x1a6\n" +
+	"\x11GitHub Repository\x12!https://github.com/carped99/gosdkB\x89\x01\n" +
 	"\x0ecom.aclgate.v1B\fServiceProtoP\x01Z aclgate/api/aclgate/v1;aclgatev1\xa2\x02\x03AXX\xaa\x02\n" +
 	"Aclgate.V1\xca\x02\n" +
 	"Aclgate\\V1\xe2\x02\x16Aclgate\\V1\\GPBMetadata\xea\x02\vAclgate::V1b\x06proto3"

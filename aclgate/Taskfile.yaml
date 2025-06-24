@@ -4,15 +4,27 @@ tasks:
   buf:gen:
     desc: Generate the module
     cmds:
+      # 인증 토큰을 사용하면 요청 한도를 늘릴 수 있다.
       - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -e BUF_TOKEN=e705b2cb416e2ad49681af8f42d54bfc9219ec8fa586fc38eecf82758f724c2c bufbuild/buf generate
   buf:build:
     desc: Test the module by building it
+    deps: [buf:update]
     cmds:
       - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace bufbuild/buf build
   buf:push:
     desc: Push the module to the BSR
+    deps: [buf:build]
     cmds:
       - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -e BUF_TOKEN=e705b2cb416e2ad49681af8f42d54bfc9219ec8fa586fc38eecf82758f724c2c bufbuild/buf push
+  buf:update:
+    desc: dep update 등의 작업을 위해 쉘을 실행
+    deps: [buf:lint]
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -it bufbuild/buf dep update
+  buf:lint:
+    desc: dep update 등의 작업을 위해 쉘을 실행
+    cmds:
+      - docker run --rm -v "{{.TASKFILE_DIR}}/api:/workspace" -w /workspace -it bufbuild/buf lint
   buf:sh:
     desc: lint, dep update 등의 작업을 위해 쉘을 실행
     cmds:

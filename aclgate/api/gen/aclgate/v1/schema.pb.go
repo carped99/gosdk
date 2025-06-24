@@ -8,6 +8,8 @@ package aclgatev1
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -22,6 +24,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Subject (user, group, etc.)
 type Subject struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -74,6 +77,7 @@ func (x *Subject) GetId() string {
 	return ""
 }
 
+// Resource (file, database, API, etc.)
 type Resource struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
@@ -126,6 +130,7 @@ func (x *Resource) GetId() string {
 	return ""
 }
 
+// Relation (type of permission)
 type Relation struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -170,6 +175,7 @@ func (x *Relation) GetName() string {
 	return ""
 }
 
+// Permission tuple (combination of subject, resource, and relation)
 type Tuple struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Subject       *Subject               `protobuf:"bytes,1,opt,name=subject,proto3" json:"subject,omitempty"`
@@ -235,20 +241,24 @@ var File_aclgate_v1_schema_proto protoreflect.FileDescriptor
 const file_aclgate_v1_schema_proto_rawDesc = "" +
 	"\n" +
 	"\x17aclgate/v1/schema.proto\x12\n" +
-	"aclgate.v1\x1a\x1bbuf/validate/validate.proto\"[\n" +
-	"\aSubject\x12)\n" +
-	"\x04type\x18\x01 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,254}$R\x04type\x12%\n" +
-	"\x02id\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x02id\"[\n" +
-	"\bResource\x12,\n" +
-	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x12!\n" +
-	"\x02id\x18\x02 \x01(\tB\x11\xbaH\x0er\f2\n" +
-	"^[^#:\\s]+$R\x02id\"7\n" +
-	"\bRelation\x12+\n" +
-	"\x04name\x18\x01 \x01(\tB\x17\xbaH\x14r\x122\x10^[^:#@\\s]{1,50}$R\x04name\"\xb2\x01\n" +
-	"\x05Tuple\x125\n" +
-	"\asubject\x18\x01 \x01(\v2\x13.aclgate.v1.SubjectB\x06\xbaH\x03\xc8\x01\x01R\asubject\x128\n" +
-	"\bresource\x18\x02 \x01(\v2\x14.aclgate.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
-	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB\x06\xbaH\x03\xc8\x01\x01R\brelationB\x88\x01\n" +
+	"aclgate.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x8d\x02\n" +
+	"\aSubject\x12]\n" +
+	"\x04type\x18\x01 \x01(\tBI\x92A12/Subject type (e.g., user, group, role, service)\xbaH\x12r\x102\x0e^[^\\s]{1,254}$R\x04type\x12Z\n" +
+	"\x02id\x18\x02 \x01(\tBJ\x92A220Subject identifier (UUID, email, username, etc.)\xbaH\x12r\x102\x0e^[^\\s]{1,256}$R\x02id:G\x92AD\n" +
+	"B*\aSubject27Entity that holds permissions (user, group, role, etc.)\"\x81\x02\n" +
+	"\bResource\x12d\n" +
+	"\x04type\x18\x01 \x01(\tBP\x92A523Resource type (e.g., document, database, api, file)\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x12R\n" +
+	"\x02id\x18\x02 \x01(\tBB\x92A.2,Resource identifier (UUID, path, name, etc.)\xbaH\x0er\f2\n" +
+	"^[^#:\\s]+$R\x02id:;\x92A8\n" +
+	"6*\bResource2*Target resource for permission enforcement\"\xc6\x01\n" +
+	"\bRelation\x12w\n" +
+	"\x04name\x18\x01 \x01(\tBc\x92AI2GPermission relation name (e.g., can_read, can_write, can_delete, owner)\xbaH\x14r\x122\x10^[^:#@\\s]{1,50}$R\x04name:A\x92A>\n" +
+	"<*\bRelation20Permission relation between subject and resource\"\xa0\x03\n" +
+	"\x05Tuple\x12d\n" +
+	"\asubject\x18\x01 \x01(\v2\x13.aclgate.v1.SubjectB5\x92A,2\x1eSubject holding the permission\xd2\x01\x04type\xd2\x01\x02id\xbaH\x03\xc8\x01\x01R\asubject\x12q\n" +
+	"\bresource\x18\x02 \x01(\v2\x14.aclgate.v1.ResourceB?\x92A62(Resource to which the permission applies\xd2\x01\x04type\xd2\x01\x02id\xbaH\x03\xc8\x01\x01R\bresource\x12W\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB%\x92A\x1c2\x13Permission relation\xd2\x01\x04name\xbaH\x03\xc8\x01\x01R\brelation:e\x92Ab\n" +
+	"`*\x10Permission Tuple2LDefinition of permission as a combination of subject, resource, and relationB\x88\x01\n" +
 	"\x0ecom.aclgate.v1B\vSchemaProtoP\x01Z aclgate/api/aclgate/v1;aclgatev1\xa2\x02\x03AXX\xaa\x02\n" +
 	"Aclgate.V1\xca\x02\n" +
 	"Aclgate\\V1\xe2\x02\x16Aclgate\\V1\\GPBMetadata\xea\x02\vAclgate::V1b\x06proto3"

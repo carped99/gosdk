@@ -1,0 +1,774 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "ACL Gate API",
+    "description": "Access Control Management API\n\nThis API provides features for managing and verifying user permissions for resources.\n\n## Main Features\n- Single/Bulk permission check\n- Grant/Revoke/Update permissions\n- List permissions\n- Audit log query\n\n## Authentication\nAll API calls require a valid JWT token.\n\n## Error Codes\n- 400: Bad Request\n- 401: Unauthorized\n- 403: Forbidden\n- 404: Not Found\n- 500: Internal Server Error",
+    "version": "0.0.4",
+    "contact": {
+      "name": "ACL Gate API Support",
+      "url": "https://github.com/carped99/gosdk",
+      "email": "support@carped99.com"
+    },
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "Permission Management",
+      "description": "APIs for permission verification and management"
+    },
+    {
+      "name": "Audit Log",
+      "description": "APIs for querying permission change history"
+    },
+    {
+      "name": "AclGateService",
+      "description": "Service for permission verification and management",
+      "externalDocs": {
+        "description": "GitHub Repository",
+        "url": "https://github.com/carped99/gosdk"
+      }
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/acls/v1/audit": {
+      "get": {
+        "summary": "Query audit logs",
+        "description": "Queries the history of permission changes for security audit and compliance.\n\n## Example\n```\nGET /acls/v1/audit?resource.type=document\u0026resource.id=doc123\u0026pageSize=10\n```\n\n## Response Example\n```json\n{\n  \"logs\": [\n    {\n      \"id\": \"audit123\",\n      \"action\": \"WRITE\",\n      \"tuple\": {\n        \"subject\": {\"type\": \"user\", \"id\": \"admin\"},\n        \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n        \"relation\": {\"name\": \"can_read\"}\n      },\n      \"actor\": \"admin\",\n      \"timestamp\": \"2024-01-15T10:30:00Z\",\n      \"reason\": \"Granted new user permission\"\n    }\n  ]\n}\n```",
+        "operationId": "AclGateService_Audit",
+        "responses": {
+          "200": {
+            "description": "Audit log query succeeded",
+            "schema": {
+              "$ref": "#/definitions/v1AuditResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resource.type",
+            "description": "Resource type (e.g., document, database, api, file)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "resource.id",
+            "description": "Resource identifier (UUID, path, name, etc.)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "subject.type",
+            "description": "Subject type (e.g., user, group, role, service)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "subject.id",
+            "description": "Subject identifier (UUID, email, username, etc.)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "relation.name",
+            "description": "Permission relation name (e.g., can_read, can_write, can_delete, owner)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "description": "Page size (default: 20, max: 1000)",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "cursor",
+            "description": "Pagination cursor",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Audit Log"
+        ]
+      }
+    },
+    "/acls/v1/batch": {
+      "post": {
+        "summary": "Bulk permission check",
+        "description": "Checks multiple permissions in a single request. Useful for batch operations.\n\n## Example\n```json\nPOST /acls/v1/batch\n{\n  \"items\": [\n    {\n      \"tuple\": {\n        \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n        \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n        \"relation\": {\"name\": \"can_read\"}\n      }\n    },\n    {\n      \"tuple\": {\n        \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n        \"resource\": {\"type\": \"document\", \"id\": \"doc456\"},\n        \"relation\": {\"name\": \"can_write\"}\n      }\n    }\n  ]\n}\n```",
+        "operationId": "AclGateService_BatchCheck",
+        "responses": {
+          "200": {
+            "description": "Bulk permission check succeeded",
+            "schema": {
+              "$ref": "#/definitions/v1BatchCheckResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Request for checking multiple permissions",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1BatchCheckRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Permission Management"
+        ]
+      }
+    },
+    "/acls/v1/check": {
+      "get": {
+        "summary": "Single permission check",
+        "description": "Checks if a specific subject has a specific permission on a resource.\n\n## Example\n```\nGET /acls/v1/check?tuple.subject.type=user\u0026tuple.subject.id=user123\u0026tuple.resource.type=document\u0026tuple.resource.id=doc123\u0026tuple.relation.name=can_read\n```\n\n## Response Example\n```json\n{\n  \"allowed\": true,\n  \"reason\": \"User user123 has read permission on document doc123.\"\n}\n```",
+        "operationId": "AclGateService_Check",
+        "responses": {
+          "200": {
+            "description": "Permission check succeeded",
+            "schema": {
+              "$ref": "#/definitions/v1CheckResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tuple.subject.type",
+            "description": "Subject type (e.g., user, group, role, service)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tuple.subject.id",
+            "description": "Subject identifier (UUID, email, username, etc.)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tuple.resource.type",
+            "description": "Resource type (e.g., document, database, api, file)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tuple.resource.id",
+            "description": "Resource identifier (UUID, path, name, etc.)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tuple.relation.name",
+            "description": "Permission relation name (e.g., can_read, can_write, can_delete, owner)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Permission Management"
+        ]
+      }
+    },
+    "/acls/v1/mutate": {
+      "post": {
+        "summary": "Permission mutation (grant/revoke)",
+        "description": "Grants, updates, or revokes permissions. Permissions in the 'writes' array are granted/updated, and those in 'deletes' are revoked.\n\n## Example\n```json\nPOST /acls/v1/mutate\n{\n  \"writes\": [\n    {\n      \"subject\": {\"type\": \"user\", \"id\": \"user123\"},\n      \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n      \"relation\": {\"name\": \"can_read\"}\n    }\n  ],\n  \"deletes\": [\n    {\n      \"subject\": {\"type\": \"user\", \"id\": \"user456\"},\n      \"resource\": {\"type\": \"document\", \"id\": \"doc123\"},\n      \"relation\": {\"name\": \"can_write\"}\n    }\n  ]\n}\n```",
+        "operationId": "AclGateService_Mutate",
+        "responses": {
+          "200": {
+            "description": "Permission mutation succeeded",
+            "schema": {
+              "$ref": "#/definitions/v1MutateResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Request for granting, updating, or revoking permissions",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1MutateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Permission Management"
+        ]
+      }
+    },
+    "/acls/v1/resources": {
+      "get": {
+        "summary": "List accessible resources",
+        "description": "Lists all resources a subject can access with a specific relation.\n\n## Example\n```\nGET /acls/v1/resources?type=document\u0026subject.type=user\u0026subject.id=user123\u0026relation.name=can_read\n```\n\n## Response Example\n```json\n{\n  \"resources\": [\n    {\"type\": \"document\", \"id\": \"doc123\"},\n    {\"type\": \"document\", \"id\": \"doc456\"}\n  ]\n}\n```",
+        "operationId": "AclGateService_ListResources",
+        "responses": {
+          "200": {
+            "description": "Resource list succeeded",
+            "schema": {
+              "$ref": "#/definitions/v1ListResourcesResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "type",
+            "description": "Type of resource to query (optional)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "subject.type",
+            "description": "Subject type (e.g., user, group, role, service)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "subject.id",
+            "description": "Subject identifier (UUID, email, username, etc.)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "relation.name",
+            "description": "Permission relation name (e.g., can_read, can_write, can_delete, owner)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Permission Management"
+        ]
+      }
+    },
+    "/acls/v1/subjects": {
+      "get": {
+        "summary": "List subjects with access",
+        "description": "Lists all subjects who can access a resource with a specific relation.\n\n## Example\n```\nGET /acls/v1/subjects?type=user\u0026resource.type=document\u0026resource.id=doc123\u0026relation.name=can_read\n```\n\n## Response Example\n```json\n{\n  \"subjects\": [\n    {\"type\": \"user\", \"id\": \"user123\"},\n    {\"type\": \"group\", \"id\": \"admin-group\"}\n  ]\n}\n```",
+        "operationId": "AclGateService_ListSubjects",
+        "responses": {
+          "200": {
+            "description": "Subject list succeeded",
+            "schema": {
+              "$ref": "#/definitions/v1ListSubjectsResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "$ref": "#/definitions/v1ErrorMessageResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "type",
+            "description": "Type of subject to query (optional)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "resource.type",
+            "description": "Resource type (e.g., document, database, api, file)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "resource.id",
+            "description": "Resource identifier (UUID, path, name, etc.)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "relation.name",
+            "description": "Permission relation name (e.g., can_read, can_write, can_delete, owner)",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Permission Management"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "v1AuditLog": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the audit log entry"
+        },
+        "action": {
+          "type": "string",
+          "description": "Action performed (WRITE, DELETE, UPDATE, etc.)"
+        },
+        "tuple": {
+          "$ref": "#/definitions/v1Tuple",
+          "description": "Permission tuple that was changed"
+        },
+        "actor": {
+          "type": "string",
+          "description": "Subject who performed the change"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time of the permission change"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Reason for the permission change"
+        }
+      },
+      "description": "Entry for permission change history",
+      "title": "Audit Log Entry"
+    },
+    "v1AuditResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuditLog"
+          },
+          "description": "List of audit log entries"
+        }
+      },
+      "description": "List of audit log entries",
+      "title": "Audit Log Query Response"
+    },
+    "v1BatchCheckRequest": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CheckRequest"
+          },
+          "description": "List of permission check requests (min 1)",
+          "maxItems": 100,
+          "minItems": 1
+        }
+      },
+      "description": "Request for checking multiple permissions",
+      "title": "Bulk Permission Check Request"
+    },
+    "v1BatchCheckResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1BatchCheckResult"
+          },
+          "description": "Result for each permission check request"
+        }
+      },
+      "description": "Results of multiple permission checks",
+      "title": "Bulk Permission Check Response"
+    },
+    "v1BatchCheckResult": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/v1CheckRequest",
+          "description": "Original permission check request"
+        },
+        "allowed": {
+          "type": "boolean",
+          "description": "Whether the permission is granted"
+        }
+      },
+      "description": "Result of an individual permission check",
+      "title": "Bulk Permission Check Result Item"
+    },
+    "v1CheckRequest": {
+      "type": "object",
+      "properties": {
+        "tuple": {
+          "$ref": "#/definitions/v1Tuple",
+          "description": "Permission tuple to check"
+        }
+      },
+      "description": "Request for checking a single permission",
+      "title": "Single Permission Check Request",
+      "required": [
+        "relation",
+        "resource",
+        "subject"
+      ]
+    },
+    "v1CheckResponse": {
+      "type": "object",
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "description": "Whether the permission is granted"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Explanation of the permission check result"
+        }
+      },
+      "description": "Result of single permission check",
+      "title": "Single Permission Check Response"
+    },
+    "v1ErrorMessageResponse": {
+      "type": "object",
+      "example": {
+        "code": "unauthenticated",
+        "message": "unauthenticated"
+      },
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ListResourcesResponse": {
+      "type": "object",
+      "properties": {
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Resource"
+          },
+          "description": "List of accessible resources"
+        }
+      },
+      "description": "List of resources accessible by the subject",
+      "title": "List Resources Response"
+    },
+    "v1ListSubjectsResponse": {
+      "type": "object",
+      "properties": {
+        "subjects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Subject"
+          },
+          "description": "List of subjects with access"
+        }
+      },
+      "description": "List of subjects who have access to the resource",
+      "title": "List Subjects Response"
+    },
+    "v1MutateRequest": {
+      "type": "object",
+      "properties": {
+        "writes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Tuple"
+          },
+          "description": "Permissions to grant or update"
+        },
+        "deletes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Tuple"
+          },
+          "description": "Permissions to revoke"
+        }
+      },
+      "description": "Request for granting, updating, or revoking permissions",
+      "title": "Permission Mutation Request"
+    },
+    "v1MutateResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Whether the mutation was successful"
+        }
+      },
+      "description": "Result of permission mutation operation",
+      "title": "Permission Mutation Response"
+    },
+    "v1Relation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Permission relation name (e.g., can_read, can_write, can_delete, owner)"
+        }
+      },
+      "description": "Permission relation between subject and resource",
+      "title": "Relation"
+    },
+    "v1Resource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Resource type (e.g., document, database, api, file)"
+        },
+        "id": {
+          "type": "string",
+          "description": "Resource identifier (UUID, path, name, etc.)"
+        }
+      },
+      "description": "Target resource for permission enforcement",
+      "title": "Resource"
+    },
+    "v1StreamCheckResponse": {
+      "type": "object",
+      "properties": {
+        "allowed": {
+          "type": "boolean",
+          "description": "Whether the permission is granted"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Explanation of the permission check result"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message (if any)"
+        }
+      },
+      "description": "Result of real-time permission check",
+      "title": "Real-time Permission Check Response"
+    },
+    "v1Subject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Subject type (e.g., user, group, role, service)"
+        },
+        "id": {
+          "type": "string",
+          "description": "Subject identifier (UUID, email, username, etc.)"
+        }
+      },
+      "description": "Entity that holds permissions (user, group, role, etc.)",
+      "title": "Subject"
+    },
+    "v1Tuple": {
+      "type": "object",
+      "properties": {
+        "subject": {
+          "$ref": "#/definitions/v1Subject",
+          "description": "Subject holding the permission"
+        },
+        "resource": {
+          "$ref": "#/definitions/v1Resource",
+          "description": "Resource to which the permission applies"
+        },
+        "relation": {
+          "$ref": "#/definitions/v1Relation",
+          "description": "Permission relation"
+        }
+      },
+      "description": "Definition of permission as a combination of subject, resource, and relation",
+      "title": "Permission Tuple",
+      "required": [
+        "id",
+        "type",
+        "name"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "description": "JWT token (format: Bearer {token})",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package aclgate.v1;
+
+option go_package = "aclgate/api/aclgate/v1;aclgatev1";
+
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+message ErrorMessageResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {example: "{\"code\":\"unauthenticated\", \"message\":\"unauthenticated\"}"};
+  int32 code = 1;
+  string message = 2;
+}

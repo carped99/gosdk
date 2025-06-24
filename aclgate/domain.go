@@ -74,8 +74,8 @@ type AuditRequest struct {
 	Resource Resource
 	Subject  Subject
 	Relation Relation
-	Limit    int32
-	Offset   int32
+	PageSize int32
+	Cursor   string
 }
 
 // AuditResponse represents a response containing a list of audit logs
@@ -130,16 +130,5 @@ func NewSubject(subjectType, subjectId string) Subject {
 func NewRelation(name string) Relation {
 	return Relation{
 		Name: name,
-	}
-}
-
-// NewAuditRequest creates a new AuditRequest
-func NewAuditRequest(resource Resource, subject Subject, relation Relation, limit, offset int32) AuditRequest {
-	return AuditRequest{
-		Resource: resource,
-		Subject:  subject,
-		Relation: relation,
-		Limit:    limit,
-		Offset:   offset,
 	}
 }
