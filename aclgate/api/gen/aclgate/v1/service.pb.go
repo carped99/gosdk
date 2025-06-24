@@ -926,17 +926,17 @@ const file_aclgate_v1_service_proto_rawDesc = "" +
 	"\x13StreamCheckResponse\x12\x18\n" +
 	"\aallowed\x18\x01 \x01(\bR\aallowed\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error\"\xa5\x01\n" +
+	"\x05error\x18\x03 \x01(\tR\x05error\"\xb5\x01\n" +
 	"\x14ListResourcesRequest\x12,\n" +
-	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x12-\n" +
-	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectR\asubject\x120\n" +
-	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationR\brelation\"K\n" +
+	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x125\n" +
+	"\asubject\x18\x02 \x01(\v2\x13.aclgate.v1.SubjectB\x06\xbaH\x03\xc8\x01\x01R\asubject\x128\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB\x06\xbaH\x03\xc8\x01\x01R\brelation\"K\n" +
 	"\x15ListResourcesResponse\x122\n" +
-	"\tresources\x18\x01 \x03(\v2\x14.aclgate.v1.ResourceR\tresources\"\xa7\x01\n" +
+	"\tresources\x18\x01 \x03(\v2\x14.aclgate.v1.ResourceR\tresources\"\xb7\x01\n" +
 	"\x13ListSubjectsRequest\x12,\n" +
-	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x120\n" +
-	"\bresource\x18\x02 \x01(\v2\x14.aclgate.v1.ResourceR\bresource\x120\n" +
-	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationR\brelation\"G\n" +
+	"\x04type\x18\x01 \x01(\tB\x18\xbaH\x15r\x132\x11^[^:#@\\s]{1,254}$R\x04type\x128\n" +
+	"\bresource\x18\x02 \x01(\v2\x14.aclgate.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x128\n" +
+	"\brelation\x18\x03 \x01(\v2\x14.aclgate.v1.RelationB\x06\xbaH\x03\xc8\x01\x01R\brelation\"G\n" +
 	"\x14ListSubjectsResponse\x12/\n" +
 	"\bsubjects\x18\x01 \x03(\v2\x13.aclgate.v1.SubjectR\bsubjects\"\xcf\x01\n" +
 	"\fAuditRequest\x120\n" +

@@ -6,36 +6,276 @@ option go_package = "aclgate/api/aclgate/v1;aclgatev1";
 option java_package = "carped99.aclgate.v1";
 
 import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "ACL Gate API";
+    version: "1.0.0";
+    description: "Access Control Management API\n\nThis API provides features for managing and verifying user permissions for resources.\n\n## Main Features\n- Single/Bulk permission check\n- Grant/Revoke/Update permissions\n- List permissions\n- Audit log query\n\n## Authentication\nAll API calls require a valid JWT token.\n\n## Error Codes\n- 400: Bad Request\n- 401: Unauthorized\n- 403: Forbidden\n- 404: Not Found\n- 500: Internal Server Error";
+    contact: {
+      name: "ACL Gate API Support";
+      url: "https://github.com/carped99/gosdk";
+      email: "support@carped99.com";
+    };
+    license: {
+      name: "MIT License";
+      url: "https://opensource.org/licenses/MIT";
+    };
+  };
+  schemes: HTTP;
+  schemes: HTTPS;
+  consumes: "application/json";
+  produces: "application/json";
+  security_definitions: {
+    security: {
+      key: "Bearer";
+      value: {
+        type: TYPE_API_KEY;
+        in: IN_HEADER;
+        name: "Authorization";
+        description: "JWT token (format: Bearer {token})";
+      };
+    };
+  };
+  security: {
+    security_requirement: {
+      key: "Bearer";
+      value: {};
+    };
+  };
+  tags: {
+    name: "Permission Management";
+    description: "APIs for permission verification and management";
+  };
+  tags: {
+    name: "Audit Log";
+    description: "APIs for querying permission change history";
+  };
+  responses: {
+    key: "400";
+    value: {
+      description: "Bad Request";
+      schema: {
+        json_schema: {
+          type: OBJECT;
+          properties: {
+            key: "code";
+            value: {
+              type: INTEGER;
+              format: INT32;
+              description: "Error code";
+            };
+          };
+          properties: {
+            key: "message";
+            value: {
+              type: STRING;
+              description: "Error message";
+            };
+          };
+        };
+      };
+    };
+  };
+  responses: {
+    key: "401";
+    value: {
+      description: "Unauthorized";
+      schema: {
+        json_schema: {
+          type: OBJECT;
+          properties: {
+            key: "code";
+            value: {
+              type: INTEGER;
+              format: INT32;
+            };
+          };
+          properties: {
+            key: "message";
+            value: {
+              type: STRING;
+              description: "Unauthorized message";
+            };
+          };
+        };
+      };
+    };
+  };
+  responses: {
+    key: "403";
+    value: {
+      description: "Forbidden";
+      schema: {
+        json_schema: {
+          type: OBJECT;
+          properties: {
+            key: "code";
+            value: {
+              type: INTEGER;
+              format: INT32;
+            };
+          };
+          properties: {
+            key: "message";
+            value: {
+              type: STRING;
+              description: "Forbidden message";
+            };
+          };
+        };
+      };
+    };
+  };
+  responses: {
+    key: "500";
+    value: {
+      description: "Internal Server Error";
+      schema: {
+        json_schema: {
+          type: OBJECT;
+          properties: {
+            key: "code";
+            value: {
+              type: INTEGER;
+              format: INT32;
+            };
+          };
+          properties: {
+            key: "message";
+            value: {
+              type: STRING;
+              description: "Internal server error message";
+            };
+          };
+        };
+      };
+    };
+  };
+};
+
+// Subject (user, group, etc.)
 message Subject {
-  string type = 1 [(buf.validate.field).string = {
-    pattern : "^[^\\s]{1,254}$",
-  }];
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+    json_schema: {
+      title: "Subject";
+      description: "Entity that holds permissions (user, group, role, etc.)";
+      example: "{\"type\": \"user\", \"id\": \"user123\"}";
+    };
+  };
+  
+  string type = 1 [
+    (buf.validate.field).string = {
+      pattern : "^[^\\s]{1,254}$",
+    },
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Subject type (e.g., user, group, role, service)";
+      example: "user";
+      pattern: "^[^\\s]{1,254}$";
+    }
+  ];
 
-  string id = 2 [(buf.validate.field).string = {
-    pattern : "^[^\\s]{1,256}$",
-  }];
+  string id = 2 [
+    (buf.validate.field).string = {
+      pattern : "^[^\\s]{1,256}$",
+    },
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Subject identifier (UUID, email, username, etc.)";
+      example: "user123";
+      pattern: "^[^\\s]{1,256}$";
+    }
+  ];
 }
 
+// Resource (file, database, API, etc.)
 message Resource {
-  string type = 1 [(buf.validate.field).string = {
-    pattern : "^[^:#@\\s]{1,254}$",
-  }];
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+    json_schema: {
+      title: "Resource";
+      description: "Target resource for permission enforcement";
+      example: "{\"type\": \"document\", \"id\": \"doc123\"}";
+    };
+  };
+  
+  string type = 1 [
+    (buf.validate.field).string = {
+      pattern : "^[^:#@\\s]{1,254}$",
+    },
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Resource type (e.g., document, database, api, file)";
+      example: "document";
+      pattern: "^[^:#@\\s]{1,254}$";
+    }
+  ];
 
-  string id = 2 [(buf.validate.field).string = {
-    pattern : "^[^#:\\s]+$",
-  }];
+  string id = 2 [
+    (buf.validate.field).string = {
+      pattern : "^[^#:\\s]+$",
+    },
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Resource identifier (UUID, path, name, etc.)";
+      example: "doc123";
+      pattern: "^[^#:\\s]+$";
+    }
+  ];
 }
 
+// Relation (type of permission)
 message Relation {
-  string name = 1 [(buf.validate.field).string = {
-    pattern : "^[^:#@\\s]{1,50}$",
-  }];
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+    json_schema: {
+      title: "Relation";
+      description: "Permission relation between subject and resource";
+      example: "{\"name\": \"can_read\"}";
+    };
+  };
+  
+  string name = 1 [
+    (buf.validate.field).string = {
+      pattern : "^[^:#@\\s]{1,50}$",
+    },
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Permission relation name (e.g., can_read, can_write, can_delete, owner)";
+      example: "can_read";
+      pattern: "^[^:#@\\s]{1,50}$";
+    }
+  ];
 }
 
+// Permission tuple (combination of subject, resource, and relation)
 message Tuple {
-  Subject subject = 1 [(buf.validate.field).required = true];
-  Resource resource = 2 [(buf.validate.field).required = true];
-  Relation relation = 3 [(buf.validate.field).required = true];
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+    json_schema: {
+      title: "Permission Tuple";
+      description: "Definition of permission as a combination of subject, resource, and relation";
+      example: "{\"subject\": {\"type\": \"user\", \"id\": \"user123\"}, \"resource\": {\"type\": \"document\", \"id\": \"doc123\"}, \"relation\": {\"name\": \"can_read\"}}";
+    };
+  };
+  
+  Subject subject = 1 [
+    (buf.validate.field).required = true,
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Subject holding the permission";
+      required: ["type", "id"];
+    }
+  ];
+  
+  Resource resource = 2 [
+    (buf.validate.field).required = true,
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Resource to which the permission applies";
+      required: ["type", "id"];
+    }
+  ];
+  
+  Relation relation = 3 [
+    (buf.validate.field).required = true,
+    (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {
+      description: "Permission relation";
+      required: ["name"];
+    }
+  ];
 }
 
