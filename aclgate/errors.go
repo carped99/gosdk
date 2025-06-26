@@ -7,11 +7,16 @@ import (
 
 // Common ACL errors
 var (
-	ErrInvalidRequest   = errors.New("invalid request")
-	ErrServiceNotFound  = errors.New("acl service not found in context")
-	ErrPermissionDenied = errors.New("permission denied")
-	ErrResourceNotFound = errors.New("resource not found")
-	ErrSubjectNotFound  = errors.New("subject not found")
+	ErrInvalidRequest      = errors.New("invalid request")
+	ErrServiceNotFound     = errors.New("acl service not found in context")
+	ErrPermissionDenied    = errors.New("permission denied")
+	ErrResourceNotFound    = errors.New("resource not found")
+	ErrSubjectNotFound     = errors.New("subject not found")
+	ErrInvalidResourceType = errors.New("invalid resource type")
+	ErrInvalidResourceId   = errors.New("invalid resource id")
+	ErrInvalidSubjectType  = errors.New("invalid subject type")
+	ErrInvalidSubjectId    = errors.New("invalid subject id")
+	ErrInvalidRelationName = errors.New("invalid relation name")
 )
 
 // AclError represents an ACL-specific error

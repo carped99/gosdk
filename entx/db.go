@@ -16,7 +16,7 @@ type DB struct {
 // NewDB creates a new database connection with the given configuration.
 // It applies all the necessary settings and validates the connection.
 func NewDB(cfg DatabaseConfig) (*DB, error) {
-	if err := cfg.Validate(); err != nil {
+	if err := cfg.validate(); err != nil {
 		return nil, fmt.Errorf("invalid database configuration: %w", err)
 	}
 
@@ -27,17 +27,17 @@ func NewDB(cfg DatabaseConfig) (*DB, error) {
 	}
 
 	// Apply pool settings
-	db.SetMaxOpenConns(cfg.Pool.MaxOpenConns)
-	db.SetMaxIdleConns(cfg.Pool.MaxIdleConns)
-	db.SetConnMaxLifetime(cfg.Pool.ConnMaxLifetime)
-	db.SetConnMaxIdleTime(cfg.Pool.MaxIdleTime)
+	db.SetMaxOpenConns(cfg.MaxOpenConns)
+	db.SetMaxIdleConns(cfg.MaxIdleConns)
+	db.SetConnMaxLifetime(cfg.MaxLifetime)
+	db.SetConnMaxIdleTime(cfg.MaxIdleTime)
 
 	// Validate connection
-	ctx, cancel := context.WithTimeout(context.Background(), cfg.Timeout.ConnectTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ConnectTimeout)
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
@@ -51,12 +51,10 @@ func NewDB(cfg DatabaseConfig) (*DB, error) {
 // It handles special cases and driver-specific requirements.
 func resolveDriverName(driver DatabaseDriver) string {
 	switch strings.ToLower(string(driver)) {
-	case string(Postgres):
+	case string(DatabaseDriverPostgres):
 		return "pgx"
-	case string(MySQL):
+	case string(DatabaseDriverMySQL):
 		return "mysql"
-	case string(MongoDB):
-		return "mongodb"
 	default:
 		return string(driver)
 	}

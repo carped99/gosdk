@@ -18,7 +18,7 @@ message Subject {
   
   string type = 1 [
     (buf.validate.field).string = {
-      pattern : "^[^\\s]{1,254}$",
+      pattern : "^[^:#@\\s]{1,254}$",
     },
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Subject type (e.g., user, group, role, service)";
@@ -27,7 +27,7 @@ message Subject {
 
   string id = 2 [
     (buf.validate.field).string = {
-      pattern : "^[^\\s]{1,256}$",
+      pattern : "^[^#:\\s]+$",
     },
     (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
       description: "Subject identifier (UUID, email, username, etc.)";

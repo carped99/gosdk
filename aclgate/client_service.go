@@ -11,22 +11,22 @@ import (
 // ClientService defines the interface for ACL operations
 type ClientService interface {
 	// Check verifying if the given user has the required permission
-	Check(ctx context.Context, req CheckRequest) (bool, error)
+	Check(ctx context.Context, req *CheckRequest) (bool, error)
 
 	// BatchCheck verifies multiple permissions at once
-	BatchCheck(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error)
+	BatchCheck(ctx context.Context, reqs []*CheckRequest) ([]*BatchCheckResult, error)
 
 	// Mutate adds or removes permissions (advanced usage)
-	Mutate(ctx context.Context, writes, deletes []Tuple) (bool, error)
+	Mutate(ctx context.Context, writes, deletes []*Tuple) (bool, error)
 
 	// ListResources retrieves resources based on filters
-	ListResources(ctx context.Context, req ListResourcesRequest) (*ListResourcesResponse, error)
+	ListResources(ctx context.Context, req *ListResourcesRequest) (*ListResourcesResponse, error)
 
 	// ListSubjects retrieves subjects based on filters
-	ListSubjects(ctx context.Context, req ListSubjectsRequest) (*ListSubjectsResponse, error)
+	ListSubjects(ctx context.Context, req *ListSubjectsRequest) (*ListSubjectsResponse, error)
 
 	// Audit retrieves audit logs based on filters
-	Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error)
+	Audit(ctx context.Context, req *AuditRequest) (*AuditResponse, error)
 }
 
 // clientServiceImpl implements the ClientService interface
@@ -35,7 +35,7 @@ type clientServiceImpl struct {
 }
 
 // Check verifying if the given user has the required permission
-func (s *clientServiceImpl) Check(ctx context.Context, req CheckRequest) (bool, error) {
+func (s *clientServiceImpl) Check(ctx context.Context, req *CheckRequest) (bool, error) {
 	protoReq := &v1.CheckRequest{Tuple: toProtoTuple(req.Tuple)}
 	resp, err := s.client.Check(ctx, protoReq)
 	if err != nil {
@@ -45,9 +45,9 @@ func (s *clientServiceImpl) Check(ctx context.Context, req CheckRequest) (bool, 
 }
 
 // BatchCheck verifies multiple permissions at once
-func (s *clientServiceImpl) BatchCheck(ctx context.Context, reqs []CheckRequest) ([]BatchCheckResult, error) {
+func (s *clientServiceImpl) BatchCheck(ctx context.Context, reqs []*CheckRequest) ([]*BatchCheckResult, error) {
 	if len(reqs) == 0 {
-		return []BatchCheckResult{}, nil
+		return []*BatchCheckResult{}, nil
 	}
 
 	items := make([]*v1.CheckRequest, 0, len(reqs))
@@ -60,10 +60,15 @@ func (s *clientServiceImpl) BatchCheck(ctx context.Context, reqs []CheckRequest)
 		return nil, err
 	}
 
-	results := make([]BatchCheckResult, 0, len(resp.GetResults()))
+	results := make([]*BatchCheckResult, 0, len(resp.GetResults()))
 	for _, r := range resp.GetResults() {
-		results = append(results, BatchCheckResult{
-			Request: CheckRequest{Tuple: toDomainTuple(r.GetRequest().GetTuple())},
+		tuple, err := toDomainTuple(r.GetRequest().GetTuple())
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, &BatchCheckResult{
+			Request: &CheckRequest{Tuple: tuple},
 			Allowed: r.GetAllowed(),
 		})
 	}
@@ -71,7 +76,7 @@ func (s *clientServiceImpl) BatchCheck(ctx context.Context, reqs []CheckRequest)
 }
 
 // Mutate adds or removes permissions
-func (s *clientServiceImpl) Mutate(ctx context.Context, writes, deletes []Tuple) (bool, error) {
+func (s *clientServiceImpl) Mutate(ctx context.Context, writes, deletes []*Tuple) (bool, error) {
 	protoWrites := make([]*v1.Tuple, 0, len(writes))
 	for _, t := range writes {
 		protoWrites = append(protoWrites, toProtoTuple(t))
@@ -93,7 +98,7 @@ func (s *clientServiceImpl) Mutate(ctx context.Context, writes, deletes []Tuple)
 }
 
 // ListResources retrieves resources based on filters
-func (s *clientServiceImpl) ListResources(ctx context.Context, req ListResourcesRequest) (*ListResourcesResponse, error) {
+func (s *clientServiceImpl) ListResources(ctx context.Context, req *ListResourcesRequest) (*ListResourcesResponse, error) {
 	protoReq := &v1.ListResourcesRequest{
 		Type:     req.Type,
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},
@@ -105,16 +110,16 @@ func (s *clientServiceImpl) ListResources(ctx context.Context, req ListResources
 		return nil, fmt.Errorf("failed to list resources: %v, %w", req, err)
 	}
 
-	resources := make([]Resource, 0, len(resp.GetResources()))
-	for _, t := range resp.GetResources() {
-		resources = append(resources, NewResource(t.Type, t.Id))
+	resources, err := toDomainResources(resp.GetResources())
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert resources: %w", err)
 	}
 
 	return &ListResourcesResponse{Resources: resources}, nil
 }
 
 // ListSubjects retrieves subjects based on filters
-func (s *clientServiceImpl) ListSubjects(ctx context.Context, req ListSubjectsRequest) (*ListSubjectsResponse, error) {
+func (s *clientServiceImpl) ListSubjects(ctx context.Context, req *ListSubjectsRequest) (*ListSubjectsResponse, error) {
 	protoReq := &v1.ListSubjectsRequest{
 		Type:     req.Type,
 		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
@@ -126,16 +131,16 @@ func (s *clientServiceImpl) ListSubjects(ctx context.Context, req ListSubjectsRe
 		return nil, fmt.Errorf("failed to list subjects: %v, %w", req, err)
 	}
 
-	subjects := make([]Subject, 0, len(resp.GetSubjects()))
-	for _, t := range resp.GetSubjects() {
-		subjects = append(subjects, NewSubject(t.Type, t.Id))
+	subjects, err := toDomainSubjects(resp.GetSubjects())
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert subjects: %w", err)
 	}
 
 	return &ListSubjectsResponse{Subjects: subjects}, nil
 }
 
 // Audit retrieves audit logs based on filters
-func (s *clientServiceImpl) Audit(ctx context.Context, req AuditRequest) (*AuditResponse, error) {
+func (s *clientServiceImpl) Audit(ctx context.Context, req *AuditRequest) (*AuditResponse, error) {
 	protoReq := &v1.AuditRequest{
 		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},
@@ -151,10 +156,14 @@ func (s *clientServiceImpl) Audit(ctx context.Context, req AuditRequest) (*Audit
 
 	logs := make([]AuditLog, 0, len(resp.GetLogs()))
 	for _, log := range resp.GetLogs() {
+		tuple, err := toDomainTuple(log.GetTuple())
+		if err != nil {
+			return nil, err
+		}
 		logs = append(logs, AuditLog{
 			ID:        log.GetId(),
 			Action:    log.GetAction(),
-			Tuple:     toDomainTuple(log.GetTuple()),
+			Tuple:     tuple,
 			Actor:     log.GetActor(),
 			Timestamp: log.GetTimestamp().String(),
 			Reason:    log.GetReason(),

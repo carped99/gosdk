@@ -1,79 +1,86 @@
 package aclgate
 
 import (
-	"errors"
+	"regexp"
+)
+
+var (
+	resourceTypeRegex = regexp.MustCompile(`^[^:#@\s]{1,254}$`)
+	resourceIDRegex   = regexp.MustCompile(`^[^#:\s]+$`)
+	subjectTypeRegex  = regexp.MustCompile(`^[^:#@\s]{1,254}$`)
+	subjectIDRegex    = regexp.MustCompile(`^[^:#\s]+$`)
+	relationNameRegex = regexp.MustCompile(`^[^:#@\s]{1,50}$`)
 )
 
 type Tuple struct {
-	Resource Resource
-	Subject  Subject
-	Relation Relation
+	Resource *Resource
+	Subject  *Subject
+	Relation *Relation
 }
 
 type CheckRequest struct {
-	Tuple Tuple
+	Tuple *Tuple
 }
 
 type BatchCheckResult struct {
-	Request CheckRequest
+	Request *CheckRequest
 	Allowed bool
 	Error   error
 }
 
-var (
-	ErrInvalidTuple = errors.New("invalid tuple")
-)
-
 // NewTuple creates a new Tuple with the given parameters
-func NewTuple(resourceType, resourceId, subjectType, subjectId, relation string) Tuple {
-	return Tuple{
-		Resource: NewResource(resourceType, resourceId),
-		Subject:  NewSubject(subjectType, subjectId),
-		Relation: NewRelation(relation),
+func NewTuple(resourceType, resourceId, subjectType, subjectId, relationName string) (*Tuple, error) {
+	resource, err := NewResource(resourceType, resourceId)
+	if err != nil {
+		return nil, err
 	}
-}
 
-// NewCheckRequest creates a new CheckRequest with the given tuple
-func NewCheckRequest(tuple Tuple) CheckRequest {
-	return CheckRequest{Tuple: tuple}
-}
-
-// NewCheckRequestFromParams creates a new CheckRequest with individual parameters
-func NewCheckRequestFromParams(resourceType, resourceId, subjectType, subjectId, relation string) CheckRequest {
-	return CheckRequest{
-		Tuple: NewTuple(resourceType, resourceId, subjectType, subjectId, relation),
+	subject, err := NewSubject(subjectType, subjectId)
+	if err != nil {
+		return nil, err
 	}
+
+	relation, err := NewRelation(relationName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Tuple{
+		Resource: resource,
+		Subject:  subject,
+		Relation: relation,
+	}, nil
 }
 
 // ListResourcesRequest represents a request to list permissions
 type ListResourcesRequest struct {
 	Type     string
-	Subject  Subject
-	Relation Relation
+	Subject  *Subject
+	Relation *Relation
 }
 
 type ListResourcesResponse struct {
-	Resources []Resource
+	Resources []*Resource
 }
 
 type ListSubjectsRequest struct {
 	Type     string
-	Resource Resource
-	Relation Relation
+	Resource *Resource
+	Relation *Relation
 	Limit    int32
 	Offset   int32
 }
 
 // ListSubjectsResponse represents a response containing a list of permissions
 type ListSubjectsResponse struct {
-	Subjects []Subject
+	Subjects []*Subject
 }
 
 // AuditRequest represents a request to list audit logs
 type AuditRequest struct {
-	Resource Resource
-	Subject  Subject
-	Relation Relation
+	Resource *Resource
+	Subject  *Subject
+	Relation *Relation
 	PageSize int32
 	Cursor   string
 }
@@ -87,7 +94,7 @@ type AuditResponse struct {
 type AuditLog struct {
 	ID        string
 	Action    string // e.g., "WRITE", "DELETE"
-	Tuple     Tuple
+	Tuple     *Tuple
 	Actor     string
 	Timestamp string
 	Reason    string
@@ -111,24 +118,43 @@ type Relation struct {
 }
 
 // NewResource creates a new Resource
-func NewResource(resourceType, resourceId string) Resource {
-	return Resource{
+func NewResource(resourceType, resourceId string) (*Resource, error) {
+	if !resourceTypeRegex.MatchString(resourceType) {
+		return nil, ErrInvalidResourceType
+	}
+
+	if !resourceIDRegex.MatchString(resourceId) {
+		return nil, ErrInvalidResourceId
+	}
+
+	return &Resource{
 		Type: resourceType,
 		ID:   resourceId,
-	}
+	}, nil
 }
 
 // NewSubject creates a new Subject
-func NewSubject(subjectType, subjectId string) Subject {
-	return Subject{
+func NewSubject(subjectType, subjectId string) (*Subject, error) {
+	if !subjectTypeRegex.MatchString(subjectType) {
+		return nil, ErrInvalidSubjectType
+	}
+
+	if !subjectIDRegex.MatchString(subjectId) {
+		return nil, ErrInvalidSubjectId
+	}
+	return &Subject{
 		Type: subjectType,
 		ID:   subjectId,
-	}
+	}, nil
 }
 
 // NewRelation creates a new Relation
-func NewRelation(name string) Relation {
-	return Relation{
-		Name: name,
+func NewRelation(name string) (*Relation, error) {
+	if !relationNameRegex.MatchString(name) {
+		return nil, ErrInvalidRelationName
 	}
+
+	return &Relation{
+		Name: name,
+	}, nil
 }
