@@ -1,8 +1,7 @@
-package source
+package config
 
 import (
 	"fmt"
-	"github.com/carped99/gosdk/config"
 	"strings"
 
 	"github.com/knadh/koanf/providers/env"
@@ -70,7 +69,7 @@ func (es *EnvSource) Load() (map[string]any, error) {
 	return k.All(), nil
 }
 
-func (es *EnvSource) Watch() (config.Watcher, error) {
+func (es *EnvSource) Watch() (Watcher, error) {
 	// no-op
 	return nil, nil
 }

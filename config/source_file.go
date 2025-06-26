@@ -1,8 +1,7 @@
-package source
+package config
 
 import (
 	"fmt"
-	"github.com/carped99/gosdk/config"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -142,7 +141,7 @@ func (fs *FileSource) GetEnvironmentVariableAsBool(key string, defaultValue bool
 	return defaultValue
 }
 
-func (fs *FileSource) Watch() (config.Watcher, error) {
+func (fs *FileSource) Watch() (Watcher, error) {
 	// no-op
 	return nil, nil
 }

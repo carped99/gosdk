@@ -1,9 +1,7 @@
-package loader
+package config
 
 import (
 	"fmt"
-	"github.com/carped99/gosdk/config"
-	"github.com/carped99/gosdk/config/source"
 	"github.com/spf13/pflag"
 	"log/slog"
 	"reflect"
@@ -12,52 +10,52 @@ import (
 type LoadOption func(*loadOptions)
 
 type loadOptions struct {
-	envOpts  []source.EnvSourceOption
-	fileOpts []source.FileSourceOption
+	envOpts  []EnvSourceOption
+	fileOpts []FileSourceOption
 	defaults any
 }
 
 // newLoadConfig 설정 파일을 읽기 위한 Config 객체를 생성
-func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (config.Config, error) {
+func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (Config, error) {
 	options := &loadOptions{
-		fileOpts: []source.FileSourceOption{
-			source.WithFilePath("config.yaml"),
+		fileOpts: []FileSourceOption{
+			WithFilePath("config.yaml"),
 		},
 	}
 	for _, opt := range opts {
 		opt(options)
 	}
 
-	var sources []config.Source
+	var sources []Source
 
 	if options.defaults != nil {
-		if src, err := source.NewValueSourceFromStruct(options.defaults, "koanf"); err != nil {
+		if src, err := NewValueSourceFromStruct(options.defaults, "koanf"); err != nil {
 			return nil, err
 		} else {
 			sources = append(sources, src)
 		}
 	}
 
-	if src, err := source.NewEnvSource(options.envOpts...); err != nil {
+	if src, err := NewEnvSource(options.envOpts...); err != nil {
 		return nil, err
 	} else {
 		sources = append(sources, src)
 	}
 
-	if src, err := source.NewFileSource(options.fileOpts...); err != nil {
+	if src, err := NewFileSource(options.fileOpts...); err != nil {
 		return nil, err
 	} else {
 		sources = append(sources, src)
 	}
 
-	if src, err := source.NewFlagSource(flags); err != nil {
+	if src, err := NewFlagSource(flags); err != nil {
 		return nil, err
 	} else {
 		sources = append(sources, src)
 	}
 
-	return config.NewConfig(
-		config.WithSource(sources...),
+	return NewConfig(
+		WithSource(sources...),
 	)
 }
 
@@ -67,19 +65,19 @@ func WithDefaultValueOptions(defaults any) LoadOption {
 	}
 }
 
-func WithEnvOptions(opts ...source.EnvSourceOption) LoadOption {
+func WithEnvOptions(opts ...EnvSourceOption) LoadOption {
 	return func(c *loadOptions) {
 		c.envOpts = opts
 	}
 }
 
-func WithFileOptions(opts ...source.FileSourceOption) LoadOption {
+func WithFileOptions(opts ...FileSourceOption) LoadOption {
 	return func(c *loadOptions) {
 		c.fileOpts = opts
 	}
 }
 
-func WithFlagOptions(opts ...source.FileSourceOption) LoadOption {
+func WithFlagOptions(opts ...FileSourceOption) LoadOption {
 	return func(c *loadOptions) {
 		c.fileOpts = opts
 	}

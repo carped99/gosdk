@@ -1,4 +1,4 @@
-package source
+package config
 
 import (
 	"github.com/knadh/koanf/providers/file"

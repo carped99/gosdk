@@ -1,9 +1,7 @@
-package source
+package config
 
 import (
 	"fmt"
-	"github.com/carped99/gosdk/config"
-
 	"github.com/knadh/koanf/providers/posflag"
 	"github.com/knadh/koanf/v2"
 	"github.com/spf13/pflag"
@@ -46,7 +44,7 @@ func (fs *FlagSource) Load() (map[string]any, error) {
 	return k.All(), nil
 }
 
-func (fs *FlagSource) Watch() (config.Watcher, error) {
+func (fs *FlagSource) Watch() (Watcher, error) {
 	// no-op
 	return nil, nil
 }

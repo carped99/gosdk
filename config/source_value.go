@@ -1,8 +1,7 @@
-package source
+package config
 
 import (
 	"fmt"
-	"github.com/carped99/gosdk/config"
 	"github.com/knadh/koanf/providers/confmap"
 	"github.com/knadh/koanf/providers/structs"
 	"github.com/knadh/koanf/v2"
@@ -47,7 +46,7 @@ func (ds *ValueSource) Load() (map[string]any, error) {
 	return ds.value, nil
 }
 
-func (ds *ValueSource) Watch() (config.Watcher, error) {
+func (ds *ValueSource) Watch() (Watcher, error) {
 	// no-op
 	return nil, nil
 }
