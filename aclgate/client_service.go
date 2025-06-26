@@ -140,8 +140,8 @@ func (s *clientServiceImpl) Audit(ctx context.Context, req AuditRequest) (*Audit
 		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},
 		Relation: &v1.Relation{Name: req.Relation.Name},
-		Limit:    req.PageSize,
-		Offset:   req.Cursor,
+		PageSize: req.PageSize,
+		Cursor:   req.Cursor,
 	}
 
 	resp, err := s.client.Audit(ctx, protoReq)

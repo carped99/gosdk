@@ -1,7 +1,0 @@
-version: '3'
-
-tasks:
-  gen:
-    desc: Generate the module
-    cmds:
-      - docker run --rm -v "{{.TASKFILE_DIR}}:/workspace" -w /workspace bufbuild/buf generate
