@@ -12,6 +12,7 @@ type LoadOption func(*loadOptions)
 type loadOptions struct {
 	envOpts  []EnvSourceOption
 	fileOpts []FileSourceOption
+	flagOpts []FlagSourceOption
 	defaults any
 }
 
@@ -29,7 +30,7 @@ func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (Config, error) {
 	var sources []Source
 
 	if options.defaults != nil {
-		if src, err := NewValueSourceFromStruct(options.defaults, "koanf"); err != nil {
+		if src, err := NewValueSourceFromStruct(options.defaults, "json"); err != nil {
 			return nil, err
 		} else {
 			sources = append(sources, src)
@@ -48,7 +49,7 @@ func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (Config, error) {
 		sources = append(sources, src)
 	}
 
-	if src, err := NewFlagSource(flags); err != nil {
+	if src, err := NewFlagSource(flags, options.flagOpts...); err != nil {
 		return nil, err
 	} else {
 		sources = append(sources, src)
@@ -77,9 +78,9 @@ func WithFileOptions(opts ...FileSourceOption) LoadOption {
 	}
 }
 
-func WithFlagOptions(opts ...FileSourceOption) LoadOption {
+func WithFlagOptions(opts ...FlagSourceOption) LoadOption {
 	return func(c *loadOptions) {
-		c.fileOpts = opts
+		c.flagOpts = opts
 	}
 }
 

@@ -10,8 +10,8 @@ import (
 
 // EnvSource provides environment variable configuration
 type EnvSource struct {
-	prefix    string
-	overrides map[string]string
+	prefix       string
+	nameMappings map[string]string
 }
 
 type EnvSourceOption func(*EnvSource) error
@@ -19,8 +19,8 @@ type EnvSourceOption func(*EnvSource) error
 // NewEnvSource creates a new EnvSource with the given prefix
 func NewEnvSource(opts ...EnvSourceOption) (*EnvSource, error) {
 	es := &EnvSource{
-		prefix:    "",
-		overrides: make(map[string]string),
+		prefix:       "",
+		nameMappings: make(map[string]string),
 	}
 
 	for _, opt := range opts {
@@ -32,6 +32,7 @@ func NewEnvSource(opts ...EnvSourceOption) (*EnvSource, error) {
 	return es, nil
 }
 
+// WithEnvPrefix allows setting a prefix for environment variable names
 func WithEnvPrefix(prefix string) EnvSourceOption {
 	return func(es *EnvSource) error {
 		es.prefix = prefix
@@ -39,9 +40,10 @@ func WithEnvPrefix(prefix string) EnvSourceOption {
 	}
 }
 
-func WithEnvOverrides(overrides map[string]string) EnvSourceOption {
+// WithEnvNameMapping allows setting nameMappings for environment variable names
+func WithEnvNameMapping(nameMappings map[string]string) EnvSourceOption {
 	return func(es *EnvSource) error {
-		es.overrides = overrides
+		es.nameMappings = nameMappings
 		return nil
 	}
 }
@@ -55,7 +57,7 @@ func (es *EnvSource) Load() (map[string]any, error) {
 			s = strings.TrimPrefix(s, es.prefix+"_")
 		}
 
-		if v, ok := es.overrides[s]; ok {
+		if v, ok := es.nameMappings[s]; ok {
 			return strings.ReplaceAll(v, "_", k.Delim())
 		}
 

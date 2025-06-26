@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/knadh/koanf/parsers/json"
@@ -59,7 +58,7 @@ func (fs *FileSource) Load() (map[string]any, error) {
 			continue // 파일이 없으면 건너뛰기
 		}
 
-		data, err := fs.loadSingleFile(filePath)
+		data, err := fs.loadFile(filePath)
 		if err != nil {
 			return nil, fmt.Errorf("파일 로드 실패 (%s): %w", filePath, err)
 		}
@@ -73,13 +72,8 @@ func (fs *FileSource) Load() (map[string]any, error) {
 	return result, nil
 }
 
-// GetFiles returns the list of files
-func (fs *FileSource) GetFiles() []string {
-	return fs.files
-}
-
-// loadSingleFile loads a single file and returns its data as map
-func (fs *FileSource) loadSingleFile(filePath string) (map[string]any, error) {
+// loadFile loads a single file and returns its data as map
+func (fs *FileSource) loadFile(filePath string) (map[string]any, error) {
 	ext := strings.ToLower(filepath.Ext(filePath))
 
 	// koanf 인스턴스 생성
@@ -111,34 +105,6 @@ func (fs *FileSource) loadSingleFile(filePath string) (map[string]any, error) {
 func (fs *FileSource) fileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return err == nil
-}
-
-// GetEnvironmentVariable gets an environment variable with optional default value
-func (fs *FileSource) GetEnvironmentVariable(key, defaultValue string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return defaultValue
-}
-
-// GetEnvironmentVariableAsInt gets an environment variable as integer with optional default value
-func (fs *FileSource) GetEnvironmentVariableAsInt(key string, defaultValue int) int {
-	if value := os.Getenv(key); value != "" {
-		if intValue, err := strconv.Atoi(value); err == nil {
-			return intValue
-		}
-	}
-	return defaultValue
-}
-
-// GetEnvironmentVariableAsBool gets an environment variable as boolean with optional default value
-func (fs *FileSource) GetEnvironmentVariableAsBool(key string, defaultValue bool) bool {
-	if value := os.Getenv(key); value != "" {
-		if boolValue, err := strconv.ParseBool(value); err == nil {
-			return boolValue
-		}
-	}
-	return defaultValue
 }
 
 func (fs *FileSource) Watch() (Watcher, error) {

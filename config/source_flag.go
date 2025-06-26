@@ -38,7 +38,7 @@ func (fs *FlagSource) Load() (map[string]any, error) {
 	k := koanf.New(".")
 	err := k.Load(posflag.Provider(fs.flags, ".", k), nil)
 	if err != nil {
-		return nil, fmt.Errorf("플래그 로드 실패: %w", err)
+		return nil, fmt.Errorf("failed to load flag source: %w", err)
 	}
 
 	return k.All(), nil

@@ -23,14 +23,15 @@ type config struct {
 	k         *koanf.Koanf
 	delimiter string
 	sources   []Source
+	watchers  []Watcher
 }
 
 func (c *config) Close() error {
-	//for _, w := range c.watchers {
-	//	if err := w.Stop(); err != nil {
-	//		return err
-	//	}
-	//}
+	for _, w := range c.watchers {
+		if err := w.Stop(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -76,7 +77,6 @@ func WithDelimiter(delim string) Option {
 func (c *config) Get(key string) Value {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
-	//return &atomicValue{val: c.k.Get(key)}
 	av := &atomicValue{}
 	av.Store(c.k.Get(key))
 	return av
@@ -93,8 +93,6 @@ func (c *config) Load() error {
 			return fmt.Errorf("failed to load source %T: %w", src, err)
 		}
 		if len(data) > 0 {
-			fmt.Printf("Loading configuration from source: %T, %v\n", src, c.k.Get("broker"))
-
 			if err := c.k.Load(confmap.Provider(data, c.k.Delim()), nil); err != nil {
 				return fmt.Errorf("failed to load configuration from source %T: %w", src, err)
 			}

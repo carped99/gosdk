@@ -154,11 +154,28 @@ func (v *atomicValue) String() (string, error) {
 }
 
 func (v *atomicValue) Duration() (time.Duration, error) {
-	val, err := v.Int()
-	if err != nil {
-		return 0, err
+	switch val := v.Load().(type) {
+	case time.Duration:
+		return val, nil
+	case string:
+		// 문자열 형태의 duration 파싱 (예: "1h30m", "30s", "1.5h" 등)
+		return time.ParseDuration(val)
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		// 정수값을 나노초로 해석
+		intVal, err := v.Int()
+		if err != nil {
+			return 0, err
+		}
+		return time.Duration(intVal), nil
+	case float32, float64:
+		// 실수값을 나노초로 해석
+		floatVal, err := v.Float()
+		if err != nil {
+			return 0, err
+		}
+		return time.Duration(floatVal), nil
 	}
-	return time.Duration(val), nil
+	return 0, v.typeAssertError()
 }
 
 func (v *atomicValue) Scan(obj any) error {
