@@ -2,6 +2,7 @@ package outbox
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
@@ -24,8 +25,8 @@ func NewMessageBuilder() *MessageBuilder {
 }
 
 // SetEventID sets the unique identifier for the message.
-func (b *MessageBuilder) SetEventID(id string) *MessageBuilder {
-	b.message.EventID = id
+func (b *MessageBuilder) SetEventID(id fmt.Stringer) *MessageBuilder {
+	b.message.EventID = id.String()
 	return b
 }
 

@@ -5,21 +5,42 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type MockExecutor struct {
 	mock.Mock
+	execFunc func(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 }
 
 func (m *MockExecutor) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	if m.execFunc != nil {
+		return m.execFunc(ctx, query, args...)
+	}
 	callArgs := m.Called(ctx, query, args)
-	return nil, callArgs.Error(1)
+	if callArgs.Get(0) == nil {
+		return nil, callArgs.Error(1)
+	}
+	return callArgs.Get(0).(sql.Result), callArgs.Error(1)
+}
+
+// MockResult is a mock implementation of sql.Result for testing
+type MockResult struct{}
+
+func (m *MockResult) LastInsertId() (int64, error) {
+	return 1, nil
+}
+
+func (m *MockResult) RowsAffected() (int64, error) {
+	return 1, nil
 }
 
 // testMessage is a test implementation of the Message interface
@@ -79,14 +100,12 @@ func (m *testMessage) GetCreatedAt() time.Time {
 func TestPublisher_Publish_Success(t *testing.T) {
 	// Given
 	executor := new(MockExecutor)
-	config := PublisherConfig{
-		BatchSize:  10,
-		MaxRetries: 3,
-	}
-	publisher := NewPublisher(executor, config)
+	publisher, err := NewPublisher(executor)
+	require.NoError(t, err)
+	defer publisher.Close()
 
-	msg := &testMessage{
-		UUID:          uuid.New(),
+	msg := &Message{
+		EventID:       "test-event-1",
 		EventTopic:    "test-topic",
 		EventDomain:   "test-domain",
 		EventType:     "test-event",
@@ -98,10 +117,10 @@ func TestPublisher_Publish_Success(t *testing.T) {
 		CreatedAt:     time.Now(),
 	}
 
-	executor.On("ExecContext", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+	executor.On("ExecContext", mock.Anything, mock.Anything, mock.Anything).Return(&MockResult{}, nil)
 
 	// When
-	err := publisher.Publish(context.Background(), msg)
+	err = publisher.Publish(context.Background(), msg)
 
 	// Then
 	assert.NoError(t, err)
@@ -111,14 +130,12 @@ func TestPublisher_Publish_Success(t *testing.T) {
 func TestPublisher_Publish_EmptyMessages(t *testing.T) {
 	// Given
 	executor := new(MockExecutor)
-	config := PublisherConfig{
-		BatchSize:  10,
-		MaxRetries: 3,
-	}
-	publisher := NewPublisher(executor, config)
+	publisher, err := NewPublisher(executor)
+	require.NoError(t, err)
+	defer publisher.Close()
 
 	// When
-	err := publisher.Publish(context.Background())
+	err = publisher.Publish(context.Background())
 
 	// Then
 	assert.NoError(t, err)
@@ -128,14 +145,12 @@ func TestPublisher_Publish_EmptyMessages(t *testing.T) {
 func TestPublisher_Publish_WithRetry(t *testing.T) {
 	// Given
 	executor := new(MockExecutor)
-	config := PublisherConfig{
-		BatchSize:  10,
-		MaxRetries: 2,
-	}
-	publisher := NewPublisher(executor, config)
+	publisher, err := NewPublisher(executor, WithMaxRetries(2))
+	require.NoError(t, err)
+	defer publisher.Close()
 
-	msg := &testMessage{
-		UUID:          uuid.New(),
+	msg := &Message{
+		EventID:       "test-event-1",
 		EventTopic:    "test-topic",
 		EventDomain:   "test-domain",
 		EventType:     "test-event",
@@ -151,10 +166,10 @@ func TestPublisher_Publish_WithRetry(t *testing.T) {
 	executor.On("ExecContext", mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, errors.New("db error")).Once()
 	executor.On("ExecContext", mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil).Once()
+		Return(&MockResult{}, nil).Once()
 
 	// When
-	err := publisher.Publish(context.Background(), msg)
+	err = publisher.Publish(context.Background(), msg)
 
 	// Then
 	assert.NoError(t, err)
@@ -164,14 +179,12 @@ func TestPublisher_Publish_WithRetry(t *testing.T) {
 func TestPublisher_Publish_MaxRetriesExceeded(t *testing.T) {
 	// Given
 	executor := new(MockExecutor)
-	config := PublisherConfig{
-		BatchSize:  10,
-		MaxRetries: 2,
-	}
-	publisher := NewPublisher(executor, config)
+	publisher, err := NewPublisher(executor, WithMaxRetries(2))
+	require.NoError(t, err)
+	defer publisher.Close()
 
-	msg := &testMessage{
-		UUID:          uuid.New(),
+	msg := &Message{
+		EventID:       "test-event-1",
 		EventTopic:    "test-topic",
 		EventDomain:   "test-domain",
 		EventType:     "test-event",
@@ -188,27 +201,25 @@ func TestPublisher_Publish_MaxRetriesExceeded(t *testing.T) {
 		Return(nil, errors.New("db error")).Times(3)
 
 	// When
-	err := publisher.Publish(context.Background(), msg)
+	err = publisher.Publish(context.Background(), msg)
 
 	// Then
 	assert.Error(t, err)
-	assert.Equal(t, "db error", err.Error())
+	assert.Contains(t, err.Error(), "failed to publish message")
 	executor.AssertExpectations(t)
 }
 
 func TestPublisher_Publish_Batch(t *testing.T) {
 	// Given
 	executor := new(MockExecutor)
-	config := PublisherConfig{
-		BatchSize:  10,
-		MaxRetries: 3,
-	}
-	publisher := NewPublisher(executor, config)
+	publisher, err := NewPublisher(executor, WithBatchSize(2))
+	require.NoError(t, err)
+	defer publisher.Close()
 
-	messages := []Message{
-		&testMessage{
-			UUID:          uuid.New(),
-			EventTopic:    "test-topic-1",
+	messages := []*Message{
+		{
+			EventID:       "test-event-1",
+			EventTopic:    "test-topic",
 			EventDomain:   "test-domain",
 			EventType:     "test-event",
 			ObjectType:    "test-object",
@@ -218,9 +229,9 @@ func TestPublisher_Publish_Batch(t *testing.T) {
 			Metadata:      json.RawMessage(`{"meta": "data1"}`),
 			CreatedAt:     time.Now(),
 		},
-		&testMessage{
-			UUID:          uuid.New(),
-			EventTopic:    "test-topic-2",
+		{
+			EventID:       "test-event-2",
+			EventTopic:    "test-topic",
 			EventDomain:   "test-domain",
 			EventType:     "test-event",
 			ObjectType:    "test-object",
@@ -230,14 +241,161 @@ func TestPublisher_Publish_Batch(t *testing.T) {
 			Metadata:      json.RawMessage(`{"meta": "data2"}`),
 			CreatedAt:     time.Now(),
 		},
+		{
+			EventID:       "test-event-3",
+			EventTopic:    "test-topic",
+			EventDomain:   "test-domain",
+			EventType:     "test-event",
+			ObjectType:    "test-object",
+			Producer:      "test-producer",
+			CorrelationID: "test-correlation",
+			Payload:       json.RawMessage(`{"key": "value3"}`),
+			Metadata:      json.RawMessage(`{"meta": "data3"}`),
+			CreatedAt:     time.Now(),
+		},
 	}
 
-	executor.On("ExecContext", mock.Anything, mock.Anything, mock.Anything).Return(nil, nil).Times(2)
+	executor.On("ExecContext", mock.Anything, mock.Anything, mock.Anything).Return(&MockResult{}, nil).Times(3)
 
 	// When
-	err := publisher.Publish(context.Background(), messages...)
+	err = publisher.Publish(context.Background(), messages...)
 
 	// Then
 	assert.NoError(t, err)
 	executor.AssertExpectations(t)
+}
+
+func TestPublisherWithParameterizedQuery(t *testing.T) {
+	mockDB := &MockExecutor{
+		execFunc: func(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+			// Verify the query uses parameterized placeholders
+			if !strings.Contains(query, "?") {
+				t.Errorf("Expected parameterized query with '?' placeholders, got: %s", query)
+			}
+			return &MockResult{}, nil
+		},
+	}
+
+	pub, err := NewPublisher(mockDB)
+	require.NoError(t, err)
+	defer pub.Close()
+
+	msg := &Message{
+		EventID:       "test-event-1",
+		EventTopic:    "test-topic",
+		EventDomain:   "test-domain",
+		EventType:     "test-type",
+		ObjectType:    "test-object",
+		Producer:      "test-producer",
+		CorrelationID: "test-correlation",
+		Payload:       json.RawMessage(`{"test": "data"}`),
+		Metadata:      json.RawMessage(`{"key": "value"}`),
+		CreatedAt:     time.Now(),
+	}
+
+	ctx := context.Background()
+	err = pub.Publish(ctx, msg)
+	require.NoError(t, err)
+}
+
+func TestPublisherQueryReuse(t *testing.T) {
+	execCount := 0
+	mockDB := &MockExecutor{
+		execFunc: func(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+			execCount++
+			return &MockResult{}, nil
+		},
+	}
+
+	pub, err := NewPublisher(mockDB)
+	require.NoError(t, err)
+	defer pub.Close()
+
+	msg := &Message{
+		EventID:       "test-event-1",
+		EventTopic:    "test-topic",
+		EventDomain:   "test-domain",
+		EventType:     "test-type",
+		ObjectType:    "test-object",
+		Producer:      "test-producer",
+		CorrelationID: "test-correlation",
+		Payload:       json.RawMessage(`{"test": "data"}`),
+		Metadata:      json.RawMessage(`{"key": "value"}`),
+		CreatedAt:     time.Now(),
+	}
+
+	ctx := context.Background()
+
+	// First publish should execute the query
+	err = pub.Publish(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, 1, execCount)
+
+	// Second publish should execute the query again
+	err = pub.Publish(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, 2, execCount)
+}
+
+func TestPublisherExecutionError(t *testing.T) {
+	mockDB := &MockExecutor{
+		execFunc: func(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+			return nil, fmt.Errorf("execution failed")
+		},
+	}
+
+	pub, err := NewPublisher(mockDB)
+	require.NoError(t, err)
+	defer pub.Close()
+
+	msg := &Message{
+		EventID:       "test-event-1",
+		EventTopic:    "test-topic",
+		EventDomain:   "test-domain",
+		EventType:     "test-type",
+		ObjectType:    "test-object",
+		Producer:      "test-producer",
+		CorrelationID: "test-correlation",
+		Payload:       json.RawMessage(`{"test": "data"}`),
+		Metadata:      json.RawMessage(`{"key": "value"}`),
+		CreatedAt:     time.Now(),
+	}
+
+	ctx := context.Background()
+	err = pub.Publish(ctx, msg)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "failed to publish message")
+}
+
+func TestPublisherClose(t *testing.T) {
+	mockDB := &MockExecutor{
+		execFunc: func(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+			return &MockResult{}, nil
+		},
+	}
+
+	pub, err := NewPublisher(mockDB)
+	require.NoError(t, err)
+
+	// Publish to create the query
+	msg := &Message{
+		EventID:       "test-event-1",
+		EventTopic:    "test-topic",
+		EventDomain:   "test-domain",
+		EventType:     "test-type",
+		ObjectType:    "test-object",
+		Producer:      "test-producer",
+		CorrelationID: "test-correlation",
+		Payload:       json.RawMessage(`{"test": "data"}`),
+		Metadata:      json.RawMessage(`{"key": "value"}`),
+		CreatedAt:     time.Now(),
+	}
+
+	ctx := context.Background()
+	err = pub.Publish(ctx, msg)
+	require.NoError(t, err)
+
+	// Close should not error
+	err = pub.Close()
+	require.NoError(t, err)
 }

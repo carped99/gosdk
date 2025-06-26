@@ -1,24 +1,26 @@
 package aclgate
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
-func canCreate(clientService ClientService, ctx context.Context, resource *Resource, subject *Subject) (bool, error) {
-	return checkTupleRelation(clientService, ctx, resource, subject, "can_create")
-}
-
-func canRead(clientService ClientService, ctx context.Context, resource *Resource, subject *Subject) (bool, error) {
-	return checkTupleRelation(clientService, ctx, resource, subject, "can_read")
-}
-
-func canWrite(clientService ClientService, ctx context.Context, resource *Resource, subject *Subject) (bool, error) {
-	return checkTupleRelation(clientService, ctx, resource, subject, "can_write")
-}
-
-func canDelete(clientService ClientService, ctx context.Context, resource *Resource, subject *Subject) (bool, error) {
-	return checkTupleRelation(clientService, ctx, resource, subject, "can_delete")
-}
+// Common relation names for standard permissions
+const (
+	RelationCanCreate = "can_create"
+	RelationCanRead   = "can_read"
+	RelationCanWrite  = "can_write"
+	RelationCanDelete = "can_delete"
+)
 
 func checkTupleRelation(clientService ClientService, ctx context.Context, resource *Resource, subject *Subject, relationName string) (bool, error) {
+	if resource == nil {
+		return false, fmt.Errorf("resource cannot be nil")
+	}
+	if subject == nil {
+		return false, fmt.Errorf("subject cannot be nil")
+	}
+
 	relation, err := NewRelation(relationName)
 	if err != nil {
 		return false, err
@@ -32,29 +34,9 @@ func checkTupleRelation(clientService ClientService, ctx context.Context, resour
 }
 
 func checkTuple(clientService ClientService, ctx context.Context, tuple *Tuple) (bool, error) {
+	if tuple == nil {
+		return false, nil // No tuple to check, consider it false
+	}
+
 	return clientService.Check(ctx, &CheckRequest{Tuple: tuple})
-}
-
-func writeTuples(clientService ClientService, ctx context.Context, tuples []*Tuple) (bool, error) {
-	return clientService.Mutate(ctx, tuples, nil)
-}
-
-func deleteTuples(clientService ClientService, ctx context.Context, tuples []*Tuple) (bool, error) {
-	return clientService.Mutate(ctx, nil, tuples)
-}
-
-func deleteResource(clientService ClientService, ctx context.Context, resource *Resource) (bool, error) {
-	return clientService.Mutate(ctx, nil, []*Tuple{
-		{
-			Resource: resource,
-		},
-	})
-}
-
-func deleteSubject(clientService ClientService, ctx context.Context, subject *Subject) (bool, error) {
-	return clientService.Mutate(ctx, nil, []*Tuple{
-		{
-			Subject: subject,
-		},
-	})
 }

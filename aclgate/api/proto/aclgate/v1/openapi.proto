@@ -10,11 +10,10 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {
     title: "ACL Gate API";
     version: "0.0.4";
-    description: "Access Control Management API\n\nThis API provides features for managing and verifying user permissions for resources.\n\n## Main Features\n- Single/Bulk permission check\n- Grant/Revoke/Update permissions\n- List permissions\n- Audit log query\n\n## Authentication\nAll API calls require a valid JWT token.\n\n## Error Codes\n- 400: Bad Request\n- 401: Unauthorized\n- 403: Forbidden\n- 404: Not Found\n- 500: Internal Server Error";
+    description: "This API provides features for managing and verifying user permissions for resources.";
     contact: {
-      name: "ACL Gate API Support";
+      name: "ACL API";
       url: "https://github.com/carped99/gosdk";
-      email: "support@carped99.com";
     };
     license: {
       name: "MIT License";

@@ -99,6 +99,10 @@ func (s *clientServiceImpl) Mutate(ctx context.Context, writes, deletes []*Tuple
 
 // ListResources retrieves resources based on filters
 func (s *clientServiceImpl) ListResources(ctx context.Context, req *ListResourcesRequest) (*ListResourcesResponse, error) {
+	if req == nil {
+		return &ListResourcesResponse{}, nil
+	}
+
 	protoReq := &v1.ListResourcesRequest{
 		Type:     req.Type,
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},
@@ -120,6 +124,10 @@ func (s *clientServiceImpl) ListResources(ctx context.Context, req *ListResource
 
 // ListSubjects retrieves subjects based on filters
 func (s *clientServiceImpl) ListSubjects(ctx context.Context, req *ListSubjectsRequest) (*ListSubjectsResponse, error) {
+	if req == nil {
+		return &ListSubjectsResponse{}, nil
+	}
+
 	protoReq := &v1.ListSubjectsRequest{
 		Type:     req.Type,
 		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
@@ -141,6 +149,10 @@ func (s *clientServiceImpl) ListSubjects(ctx context.Context, req *ListSubjectsR
 
 // Audit retrieves audit logs based on filters
 func (s *clientServiceImpl) Audit(ctx context.Context, req *AuditRequest) (*AuditResponse, error) {
+	if req == nil {
+		return &AuditResponse{}, nil
+	}
+
 	protoReq := &v1.AuditRequest{
 		Resource: &v1.Resource{Type: req.Resource.Type, Id: req.Resource.ID},
 		Subject:  &v1.Subject{Type: req.Subject.Type, Id: req.Subject.ID},

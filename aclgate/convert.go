@@ -80,12 +80,17 @@ func toDomainResource(r *v1.Resource) (*Resource, error) {
 	return NewResource(r.GetType(), r.GetId())
 }
 
+// toDomainResources optimizes memory allocation and provides early return on errors
 func toDomainResources(values []*v1.Resource) ([]*Resource, error) {
+	if len(values) == 0 {
+		return nil, nil
+	}
+
 	result := make([]*Resource, 0, len(values))
 	for _, it := range values {
 		if res, err := toDomainResource(it); err != nil {
 			return nil, err
-		} else {
+		} else if res != nil {
 			result = append(result, res)
 		}
 	}
@@ -99,12 +104,17 @@ func toDomainSubject(s *v1.Subject) (*Subject, error) {
 	return NewSubject(s.GetType(), s.GetId())
 }
 
+// toDomainSubjects optimizes memory allocation and provides early return on errors
 func toDomainSubjects(values []*v1.Subject) ([]*Subject, error) {
+	if len(values) == 0 {
+		return nil, nil
+	}
+
 	result := make([]*Subject, 0, len(values))
 	for _, it := range values {
 		if res, err := toDomainSubject(it); err != nil {
 			return nil, err
-		} else {
+		} else if res != nil {
 			result = append(result, res)
 		}
 	}
@@ -118,12 +128,17 @@ func toDomainRelation(r *v1.Relation) (*Relation, error) {
 	return NewRelation(r.GetName())
 }
 
+// toDomainRelations optimizes memory allocation and provides early return on errors
 func toDomainRelations(values []*v1.Relation) ([]*Relation, error) {
+	if len(values) == 0 {
+		return nil, nil
+	}
+
 	result := make([]*Relation, 0, len(values))
 	for _, it := range values {
 		if res, err := toDomainRelation(it); err != nil {
 			return nil, err
-		} else {
+		} else if res != nil {
 			result = append(result, res)
 		}
 	}

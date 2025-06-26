@@ -156,7 +156,7 @@ func TestNewValueSourceFromStruct(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			source, err := NewValueSourceFromStruct(tt.input, tt.tag)
+			source, err := NewValueSourceFromStruct(tt.input, WithValueTag(tt.tag))
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
@@ -247,7 +247,7 @@ func TestValueSource_Integration(t *testing.T) {
 		LogLevel:    "info",
 	}
 
-	structSource, err := NewValueSourceFromStruct(structInput, "koanf")
+	structSource, err := NewValueSourceFromStruct(structInput, WithValueTag("koanf"))
 	require.NoError(t, err)
 
 	structResult, err := structSource.Load()

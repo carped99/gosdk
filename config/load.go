@@ -10,10 +10,11 @@ import (
 type LoadOption func(*loadOptions)
 
 type loadOptions struct {
-	envOpts  []EnvSourceOption
-	fileOpts []FileSourceOption
-	flagOpts []FlagSourceOption
-	defaults any
+	envOpts   []EnvSourceOption
+	fileOpts  []FileSourceOption
+	flagOpts  []FlagSourceOption
+	valueOpts []ValueSourceOption
+	defaults  any
 }
 
 // newLoadConfig 설정 파일을 읽기 위한 Config 객체를 생성
@@ -21,6 +22,9 @@ func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (Config, error) {
 	options := &loadOptions{
 		fileOpts: []FileSourceOption{
 			WithFilePath("config.yaml"),
+		},
+		valueOpts: []ValueSourceOption{
+			WithValueTag("json"),
 		},
 	}
 	for _, opt := range opts {
@@ -30,7 +34,7 @@ func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (Config, error) {
 	var sources []Source
 
 	if options.defaults != nil {
-		if src, err := NewValueSourceFromStruct(options.defaults, "json"); err != nil {
+		if src, err := NewValueSourceFromStruct(options.defaults, options.valueOpts...); err != nil {
 			return nil, err
 		} else {
 			sources = append(sources, src)
@@ -63,6 +67,12 @@ func newLoadConfig(flags *pflag.FlagSet, opts ...LoadOption) (Config, error) {
 func WithDefaultValueOptions(defaults any) LoadOption {
 	return func(o *loadOptions) {
 		o.defaults = defaults
+	}
+}
+
+func WithValueTagOptions(opts ...ValueSourceOption) LoadOption {
+	return func(o *loadOptions) {
+		o.valueOpts = opts
 	}
 }
 

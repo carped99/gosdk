@@ -18,7 +18,7 @@ func TestMessage_Validate(t *testing.T) {
 		{
 			name: "valid message",
 			message: &Message{
-				EventID:       uuid.New(),
+				EventID:       uuid.New().String(),
 				EventTopic:    "test.topic",
 				EventDomain:   "test.domain",
 				EventType:     "test.type",
@@ -34,7 +34,7 @@ func TestMessage_Validate(t *testing.T) {
 		{
 			name: "empty event topic",
 			message: &Message{
-				EventID:     uuid.New(),
+				EventID:     uuid.New().String(),
 				EventDomain: "test.domain",
 				EventType:   "test.type",
 				ObjectType:  "test.object",
@@ -45,7 +45,7 @@ func TestMessage_Validate(t *testing.T) {
 		{
 			name: "empty event domain",
 			message: &Message{
-				EventID:    uuid.New(),
+				EventID:    uuid.New().String(),
 				EventTopic: "test.topic",
 				EventType:  "test.type",
 				ObjectType: "test.object",
@@ -56,7 +56,7 @@ func TestMessage_Validate(t *testing.T) {
 		{
 			name: "empty event type",
 			message: &Message{
-				EventID:     uuid.New(),
+				EventID:     uuid.New().String(),
 				EventTopic:  "test.topic",
 				EventDomain: "test.domain",
 				ObjectType:  "test.object",
@@ -67,7 +67,7 @@ func TestMessage_Validate(t *testing.T) {
 		{
 			name: "empty object type",
 			message: &Message{
-				EventID:     uuid.New(),
+				EventID:     uuid.New().String(),
 				EventTopic:  "test.topic",
 				EventDomain: "test.domain",
 				EventType:   "test.type",
@@ -78,7 +78,7 @@ func TestMessage_Validate(t *testing.T) {
 		{
 			name: "empty timestamp",
 			message: &Message{
-				EventID:     uuid.New(),
+				EventID:     uuid.New().String(),
 				EventTopic:  "test.topic",
 				EventDomain: "test.domain",
 				EventType:   "test.type",

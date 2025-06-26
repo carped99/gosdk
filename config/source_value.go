@@ -7,9 +7,12 @@ import (
 	"github.com/knadh/koanf/v2"
 )
 
+type ValueSourceOption func(*ValueSource) error
+
 // ValueSource provides default configuration values
 type ValueSource struct {
 	value map[string]any
+	tag   string
 }
 
 // NewValueSourceFromMap creates a new ValueSource with the given value
@@ -24,15 +27,24 @@ func NewValueSourceFromMap(value map[string]any) (*ValueSource, error) {
 }
 
 // NewValueSourceFromStruct creates a ValueSource from a struct
-func NewValueSourceFromStruct(defaults any, tag string) (*ValueSource, error) {
+func NewValueSourceFromStruct(defaults any, opts ...ValueSourceOption) (*ValueSource, error) {
+	vs := &ValueSource{
+		value: map[string]any{},
+		tag:   "json",
+	}
+
 	if defaults == nil {
-		return &ValueSource{
-			value: map[string]any{},
-		}, nil
+		return vs, nil
+	}
+
+	for _, opt := range opts {
+		if err := opt(vs); err != nil {
+			return nil, err
+		}
 	}
 
 	k := koanf.New(".")
-	if err := k.Load(structs.Provider(defaults, tag), nil); err != nil {
+	if err := k.Load(structs.Provider(defaults, vs.tag), nil); err != nil {
 		return nil, fmt.Errorf("failed to load struct source: %w", err)
 	}
 
@@ -49,4 +61,12 @@ func (ds *ValueSource) Load() (map[string]any, error) {
 func (ds *ValueSource) Watch() (Watcher, error) {
 	// no-op
 	return nil, nil
+}
+
+// WithValueTag sets the tag used for struct fields in ValueSource
+func WithValueTag(tag string) ValueSourceOption {
+	return func(vs *ValueSource) error {
+		vs.tag = tag
+		return nil
+	}
 }

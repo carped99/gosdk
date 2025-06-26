@@ -21,7 +21,7 @@ func TestErrors(t *testing.T) {
 		{
 			name:     "ErrInvalidEventDomain",
 			err:      ErrInvalidEventDomain,
-			expected: "events domain not configured",
+			expected: "event domain not configured",
 		},
 		{
 			name:     "ErrInvalidEventType",

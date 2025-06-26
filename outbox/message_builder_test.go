@@ -19,7 +19,7 @@ func TestMessageBuilder(t *testing.T) {
 
 		// When
 		message, err := NewMessageBuilder().
-			SetUUID(id).
+			SetEventID(id).
 			SetCreatedAt(now).
 			SetEventTopic("test.topic").
 			SetEventDomain("test.domain").
@@ -34,7 +34,7 @@ func TestMessageBuilder(t *testing.T) {
 		// Then
 		assert.NoError(t, err)
 		assert.NotNil(t, message)
-		assert.Equal(t, id, message.EventID)
+		assert.Equal(t, id.String(), message.EventID)
 		assert.Equal(t, now, message.CreatedAt)
 		assert.Equal(t, "test.topic", message.EventTopic)
 		assert.Equal(t, "test.domain", message.EventDomain)
