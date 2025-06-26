@@ -101,13 +101,12 @@ func NewPublisher(executor Executor, opts ...PublisherOption) (Publisher, error)
 		}
 	}
 
-	// Note: We'll prepare the statement when we have a context
-	// This allows for better resource management
+	const query = "INSERT INTO %s (event_id, event_topic, event_domain, event_type, object_type, producer, correlation_id, payload, metadata, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
 	return &publisher{
 		executor: executor,
 		config:   config,
-		query:    fmt.Sprintf("INSERT INTO %s (event_id, event_topic, event_domain, event_type, object_type, producer, correlation_id, payload, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", config.tableName),
+		query:    fmt.Sprintf(query, config.tableName),
 	}, nil
 }
 
@@ -134,12 +133,7 @@ func (p *publisher) Close() error {
 }
 
 func (p *publisher) publishBatch(ctx context.Context, messages []*Message) error {
-	// Process messages in batches for better performance
 	batchSize := p.config.batchSize
-	if batchSize <= 0 {
-		batchSize = defaultBatchSize
-	}
-
 	for i := 0; i < len(messages); i += batchSize {
 		end := i + batchSize
 		if end > len(messages) {
@@ -189,7 +183,7 @@ func (p *publisher) executePublish(ctx context.Context, msg *Message) error {
 		msg.Producer, msg.CorrelationID, msg.Payload, msg.Metadata, msg.CreatedAt)
 
 	if err != nil {
-		return fmt.Errorf("database execution failed: %w", err)
+		return err
 	}
 
 	return nil
